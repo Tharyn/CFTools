@@ -1,0 +1,46 @@
+﻿
+
+
+(10.26.2014)
+* Load CF GUI on Startup
+
+* Added default scene in Resources director with:
+	Ambient = Color 0 0 0
+	Camera background = Color 0 0 0
+
+* Create Null		( Now uses CF_Properties )
+
+* CF_Tools.NotifyForLockedFiles prevent save over Read-Only Files
+
+* CF_Tools.Isolate Selection
+
+* CF_Properties now use for any GameObject
+	Gizmo Display 
+	Gizmo Size
+	Gizmo Color		( Includes Alpha Transparentcy )
+	Look At Target
+	Invert Z		( Used for Look At Controller to flip geometry direction )
+	Select Target	( Hacked Bool so that an Editor Script is not needed for action )
+
+* CF_GUI Toggle working
+
+* Create:
+	Cube
+	Cylinder
+	Plane 
+	Sphere
+	Spot Light
+	Direct Light
+
+* Removed all colliders for primitives (These should be added as needed to conserve resources)
+
+* FIxed Look At Target to always use up vector(This is correct for cameras and lights)
+
+* TO DO:
+	Add delete target prompt for GameObject that have a LookAt target when destroyed 
+	Add Name change for Lights and Camers so that you can see the (Type) in the Hiearchy
+
+	3dsmax Scene Importer
+
+
+	

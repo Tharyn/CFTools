@@ -1,0 +1,48 @@
+﻿using UnityEngine;
+using UnityEditor;
+//using System.Collections;
+//using System;
+//using System.Reflection;
+
+[ExecuteInEditMode]
+public class SelectObjectDialog : MonoBehaviour 
+{
+
+    public bool test = true;
+    Object currentObject = null;
+	// Use this for initialization
+	void Start () 
+	{
+        //new EditorGUIUtility.ShowObjectPicker(); 
+       
+       EditorGUIUtility.ShowObjectPicker<UnityEngine.GameObject>(new UnityEngine.Object(), false, " ", 2);
+	}
+	
+	// Update is called once per frame
+	void Update () 
+	{
+	
+	}
+
+    void OnGUI()
+    {
+        if (test)
+        {
+            int controlID = EditorGUIUtility.GetControlID(FocusType.Passive);
+            //Camera????????????????GameObject?????
+            EditorGUIUtility.ShowObjectPicker<Camera>(null, true, "", controlID);
+            
+        }
+
+        string commandName = Event.current.commandName;
+        if (commandName == "ObjectSelectorUpdated")
+        {
+            currentObject = EditorGUIUtility.GetObjectPickerObject();
+            commandName = "";
+            Debug.Log(currentObject);
+        }
+
+        test = false;
+    }
+ 
+}
