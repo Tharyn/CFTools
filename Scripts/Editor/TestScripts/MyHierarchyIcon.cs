@@ -37,7 +37,10 @@ class MyHierarchyIcon
         icons.Add(texture);
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Collider.ico.png", typeof(Texture2D)) as Texture2D;
         icons.Add(texture);
-
+        texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/OmniLight.ico.png", typeof(Texture2D)) as Texture2D;
+        icons.Add(texture);
+        texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/SkySystem.ico.png", typeof(Texture2D)) as Texture2D;
+        icons.Add(texture);
         EditorApplication.update += UpdateCB;
         //EditorApplication.hierarchyWindowChanged += UpdateCB;
         EditorApplication.hierarchyWindowItemOnGUI += HierarchyItemCB;
@@ -78,7 +81,12 @@ class MyHierarchyIcon
             if (g.GetComponent<Light>() != null)
             {
                 markedObjects.Add(g.GetInstanceID());
-                iconToUse.Add(0);
+                if (g.GetComponent<Light>().type == LightType.Spot) 
+                    iconToUse.Add(0);
+                else
+                    iconToUse.Add(7);
+
+
                 depth.Add(FindDepth(g, 0));
                 if (g.transform.childCount == 0)
                     hasChild.Add(false);
@@ -117,6 +125,17 @@ class MyHierarchyIcon
             {
                 markedObjects.Add(g.GetInstanceID());
                 iconToUse.Add(2);
+                depth.Add(FindDepth(g, 0));
+                if (g.transform.childCount == 0)
+                    hasChild.Add(false);
+                else
+                    hasChild.Add(true);
+            }
+            // Example: mark all lights
+            if (g.GetComponent("SkyManager") != null)
+            {
+                markedObjects.Add(g.GetInstanceID());
+                iconToUse.Add(8);
                 depth.Add(FindDepth(g, 0));
                 if (g.transform.childCount == 0)
                     hasChild.Add(false);
