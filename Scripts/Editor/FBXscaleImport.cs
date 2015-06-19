@@ -6,6 +6,7 @@ using System.Collections.Generic; // NEEDED FOR (Lists)
 
 public class FBXscaleImport : AssetPostprocessor
 {
+
     public static List<string> texIDs;
     public static List<string> texNames;
     public char[] delimiterChars = { '(', ')', ','};
@@ -347,8 +348,12 @@ public class FBXscaleImport : AssetPostprocessor
                             //texNames.Add (AssetDatabase.GUIDToAssetPath(tempArray[i]));
                         }
                     }
+                     
                 }
-             
+                string[] strSpl2 = new string[] { "(" };
+                string GoName = GoChildren[j].name.Split(strSpl2, StringSplitOptions.RemoveEmptyEntries)[0];
+                GoChildren[j].name = GoName;
+                
             }
 
         }
