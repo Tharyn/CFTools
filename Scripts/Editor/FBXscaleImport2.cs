@@ -137,26 +137,111 @@ public class FBXscaleImport2 : AssetPostprocessor
             //Debug.Log( DoesAssetExits(Paths, GoChildren[3].name));
 
             // For i in Children read data files
-            // FOR EACH GAME OBJECT
-            for (int i = 0; i < GoChildren.Count; i++)
-            {
+            for (int i = 0; i < GoChildren.Count; i++) {
+
+                GameObject goc = GoChildren[i];
                 // Has data file ?
-                if (DoesAssetExits(Paths, GoChildren[i].name))
-                {
+                if (DoesAssetExits(Paths, goc.name)) {
                     List<string> Keys = new List<string>();
                     List<string> Values = new List<string>();
-                    string filePath = Paths[0] + "/" + GoChildren[i].name + ".txt";
+                    string filePath = Paths[0] + "/" + goc.name + ".txt";
                     MaxDataParser(ref Keys, ref Values, filePath);
 
-                    /* Get CLASS index
-                    int index = Keys.FindIndex(s => s.Contains("Class"));
-                    if (index > -1)
-                        Debug.Log(GoChildren[i].name);
-                    */
-                    //Debug.Log(Values[0]);
-                    int index = Values.FindIndex(s => s.Contains("Light"));
-                    if (index > -1)
-                        Debug.Log(GoChildren[i].name);
+                    // Get CLASS index
+                    int ClassIndex = Keys.FindIndex(s => s.Contains("Class"));
+                    int TypeIndex = Keys.FindIndex(s => s.Contains("Type"));
+
+                    // IF both the class and the type are defined in the data file continue
+                    if (ClassIndex > -1 && TypeIndex > -1) {
+
+                        switch (Values[ClassIndex]) {
+
+                            case "Light": {
+                                if (!goc.GetComponent<Light>()) {
+                                    goc.AddComponent<Light>();
+                                    CF_DualLightProps DLP = goc.AddComponent<CF_DualLightProps>();
+
+
+                                    int RangeIndex = Keys.FindIndex(s => s.Contains("Range"));
+                                    int MultiIndex = Keys.FindIndex(s => s.Contains("Multi"));
+                                    int rIndex = Keys.FindIndex(s => s.Contains("R"));
+                                    int gIndex = Keys.FindIndex(s => s.Contains("G"));
+                                    int bIndex = Keys.FindIndex(s => s.Contains("B"));
+                                    int ShadIndex = Keys.FindIndex(s => s.Contains("Shadows"));
+                                    int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
+                                    int lengthIndex = Keys.FindIndex(s => s.Contains("Length"));
+                                    int widthIndex = Keys.FindIndex(s => s.Contains("Width"));
+
+                                    // Type
+                                    string type = Values[TypeIndex];
+                                    if (type.IndexOf("Omni") > -1) {
+                                        goc.light.type = LightType.Point;
+                                    } else if (type.IndexOf("Spot") > -1) {
+                                        goc.light.type = LightType.Spot;
+                                    } else if (type.IndexOf("Vray") > -1) {
+                                        goc.light.type = LightType.Area;
+                                    }
+
+                                    // Color
+                                    if (rIndex > -1) {
+                                        Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
+                                        goc.light.color = lColor;
+                                        DLP.rtColor = lColor;
+                                        DLP.bkColor = lColor;
+                                    }
+
+                                    // Color
+                                    if (rIndex > -1) {
+                                        Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
+                                        goc.light.color = lColor;
+                                        DLP.rtColor = lColor;
+                                        DLP.bkColor = lColor;
+                                    }
+
+                                    // Intensiy
+                                    if (MultiIndex > -1)
+                                        goc.light.intensity = Convert.ToSingle(Values[MultiIndex]);
+
+                                    // Shadows
+                                    if (ShadIndex > -1) {
+                                        if  (Convert.ToBoolean( Values[ShadIndex]))
+                                            goc.light.shadows = LightShadows.Hard;
+                                        else
+                                            goc.light.shadows = LightShadows.None;
+                                    }
+
+
+
+
+
+                                    Debug.Log(goc.name);
+                                }
+                                    break;
+                            }
+
+                            case "Collider": {
+                                    //Debug.Log(GoChildren[i].name);
+                                    break;
+                            }
+
+                            case "Camera": {
+                                    //Debug.Log(GoChildren[i].name);
+                                    break;
+                            }
+
+                            case "Null": {
+                                    //Debug.Log(GoChildren[i].name);
+                                    break;
+                            }
+
+                        }
+
+                        /* How to search in a list for a value
+                        int index = Values.FindIndex(s => s.Contains("Light"));
+                        if (index > -1)
+                            Debug.Log(GoChildren[i].name);
+                        */
+                    }
                 }
                 //if (Keys[0] == "Light")
             }
