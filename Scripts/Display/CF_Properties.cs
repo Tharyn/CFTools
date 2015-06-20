@@ -11,6 +11,7 @@ public class CF_Properties : MonoBehaviour
 
     public float size = .2f;
     public Color color = new Color(.75f, .75f, .75f, .5F);
+
     Color whiteLine = new Color(.5F, .5F, .5F, .5F);
     Color grayLine = new Color(0F, 0F, 0F, .5F);
     Color whiteSelected = new Color(1, 1, 1, .75F);
@@ -19,7 +20,6 @@ public class CF_Properties : MonoBehaviour
     Color blueLine = new Color(0, 0, 1, .5F);
 
     Color yellowLight = new Color(.75F, .75F, .25F, .5F);
-    //TV Color blueCamera = new Color(.25F, .25F, .75F, .5F);
 
     public Transform lookAtTarget;
     public bool invertZ;
@@ -62,6 +62,7 @@ public class CF_Properties : MonoBehaviour
 		}
 	}
 
+    #if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
     void OnDrawGizmos()
     {
         aCamera = gameObject.camera;
@@ -180,6 +181,7 @@ public class CF_Properties : MonoBehaviour
             Gizmos.color = blueLine;
             Gizmos.DrawLine(new Vector3(0, 0, 0), new Vector3(0, 0, size * 4 * gameObject.transform.localScale.z));
         }
-       
+
     }
+    #endif
 }
