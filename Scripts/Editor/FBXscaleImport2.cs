@@ -131,7 +131,7 @@ public class FBXscaleImport2 : AssetPostprocessor
             if (GoChildren[j].name.IndexOf(name) > -1 && GoChildren[j].name.IndexOf("Target") > -1)
                 to = GoChildren[j];
         }
-        Debug.Log(to);
+        //Debug.Log(to);
         return to;
     }
 
@@ -184,6 +184,8 @@ public class FBXscaleImport2 : AssetPostprocessor
                     int sizeIndex = Keys.FindIndex(s => s.Contains("Size"));
                     int lengthIndex = Keys.FindIndex(s => s.Contains("Length"));
                     int widthIndex = Keys.FindIndex(s => s.Contains("Width"));
+                    int heightIndex = Keys.FindIndex(s => s.Contains("Height"));
+                    int radiusIndex = Keys.FindIndex(s => s.Contains("Radius"));
 
                     int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
 
@@ -276,12 +278,27 @@ public class FBXscaleImport2 : AssetPostprocessor
                             }
 
                             case "Collider": {
-
-                                    break;
+                                switch (Values[TypeIndex]) {
+                                    case "Box": {
+                                        goc.AddComponent<BoxCollider>();
+                                        break;
+                                    }
+                                    case "Sphere": {
+                                        goc.AddComponent<SphereCollider>();
+                                        break;
+                                    }
+                                    case "Cylinder": {
+                                        CapsuleCollider col = goc.AddComponent<CapsuleCollider>();
+                                        col.direction = 2;
+                                        col.height = Convert.ToSingle(Values[heightIndex]);
+                                        col.radius = Convert.ToSingle(Values[radiusIndex]);
+                                        break;
+                                    }
+                                }
+                                break;
                             }
 
                             case "Camera": {
-                                Debug.Log(goc);
                                     cam = goc.AddComponent<Camera>();
                                     if (vFovIndex > -1) 
                                        cam.fieldOfView = Convert.ToSingle(Values[vFovIndex]);
@@ -300,6 +317,8 @@ public class FBXscaleImport2 : AssetPostprocessor
                             }
 
                         }
+
+                        // Target or Null
                         if (targetIndex > -1 ) {
                             CFP = goc.AddComponent<CF_Properties>();
                             CFP.lookAtTarget = (FindTarget(GoChildren, Values[targetIndex])).transform;
@@ -317,7 +336,12 @@ public class FBXscaleImport2 : AssetPostprocessor
 
             }
 
-
+            // Strip tags off
+            for (int i = 0; i < GoChildren.Count; i++) {
+                string[] strSpl2 = new string[] { "(" };
+                string GoName = GoChildren[i].name.Split(strSpl2, StringSplitOptions.RemoveEmptyEntries)[0];
+                GoChildren[i].name = GoName;
+            }
             /* If a data file exists for a node
             if (DoesAssetExits(Paths, GoChildren[3].name))
             {
