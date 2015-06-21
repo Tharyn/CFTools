@@ -4,16 +4,16 @@ using System.Collections;
 public class PlaneProps : MonoBehaviour
 {
     [SerializeField]
-    private float widthInch = 120;
+    private float width = 5;
 
     public float WidthInch {
         get {
-            return widthInch;
+            return width;
         }
         set {
-            widthInch = value;
+            width = value;
             //widthFoot = value/12;
-            transform.localScale = new Vector3(widthInch / 10, 1, heightInch / 10);
+            transform.localScale = new Vector3(width/10, 1, height/10);
         }
     }
     /*
@@ -26,26 +26,26 @@ public class PlaneProps : MonoBehaviour
         }
         set {
             widthFoot = value;
-            //widthInch = value*12;
-            //transform.localScale = new Vector3(widthInch / 10, 1, heightInch / 10);
+            //width = value*12;
+            //transform.localScale = new Vector3(width / 10, 1, height / 10);
         }
     }
     */
     [SerializeField]
-    private float heightInch = 5;
+    private float height = 5;
     public float HeightInch {
         get {
-            return heightInch;
+            return height;
         }
         set {
-            heightInch = value;
-            transform.localScale = new Vector3(widthInch / 10, 1, heightInch / 10);
+            height = value;
+            transform.localScale = new Vector3(width/10, 1, height/10);
         }
     }
 
 
     void OnValidate() {
-        WidthInch = widthInch;
-        HeightInch = heightInch;
+        WidthInch = width;
+        HeightInch = height;
     }
 }
