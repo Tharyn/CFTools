@@ -8,6 +8,12 @@ using System.IO;
 public class FBXscaleImport2 : AssetPostprocessor
 {
 
+    /* How to search in a list for a value
+    int index = Values.FindIndex(s => s.Contains("Light"));
+    if (index > -1)
+        Debug.Log(GoChildren[i].name);
+    */
+
     public static List<string> texIDs;
     public static List<string> texNames;
     public char[] delimiterChars = { '(', ')', ','};
@@ -161,36 +167,46 @@ public class FBXscaleImport2 : AssetPostprocessor
                     int ClassIndex = Keys.FindIndex(s => s.Contains("Class"));
                     int TypeIndex = Keys.FindIndex(s => s.Contains("Type"));
 
+                    int RangeIndex = Keys.FindIndex(s => s.Contains("Range"));
+                    int MultiIndex = Keys.FindIndex(s => s.Contains("Multi"));
+                    int fovIndex = Keys.FindIndex(s => s.Contains("FOV"));
+                    int vFovIndex = Keys.FindIndex(s => s.Contains("vFOV"));
+
+                    int nearIndex = Keys.FindIndex(s => s.Contains("Near"));
+                    int farIndex = Keys.FindIndex(s => s.Contains("Far"));
+
+                    int rIndex = Keys.FindIndex(s => s.Contains("Red"));
+                    int gIndex = Keys.FindIndex(s => s.Contains("Green"));
+                    int bIndex = Keys.FindIndex(s => s.Contains("Blue"));
+                    int aIndex = Keys.FindIndex(s => s.Contains("Alpha"));
+                    int shadowIndex = Keys.FindIndex(s => s.Contains("Shadows"));
+
+                    int sizeIndex = Keys.FindIndex(s => s.Contains("Size"));
+                    int lengthIndex = Keys.FindIndex(s => s.Contains("Length"));
+                    int widthIndex = Keys.FindIndex(s => s.Contains("Width"));
+
+                    int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
+
+                    Light Lcp = null;
+                    CF_Properties CFP = null;
+                    CF_DualLightProps DLP = null;
+                    Camera cam = null;
+
                     // IF both the class and the type are defined in the data file continue
                     if (ClassIndex > -1 && TypeIndex > -1) {
-
+                        
                         switch (Values[ClassIndex]) {
 
                             case "Light": {
                                 if (!goc.GetComponent<Light>()) {
 
-                                    Light Lcp = goc.AddComponent<Light>();
-                                    CF_DualLightProps DLP = null;
-                                    CF_Properties CFP = null;
+                                    Lcp = goc.AddComponent<Light>();
+                                    
 
-                                    int RangeIndex = Keys.FindIndex(s => s.Contains("Range"));
-                                    int MultiIndex = Keys.FindIndex(s => s.Contains("Multi"));
-                                    int rIndex = Keys.FindIndex(s => s.Contains("R"));
-                                    int gIndex = Keys.FindIndex(s => s.Contains("G"));
-                                    int bIndex = Keys.FindIndex(s => s.Contains("B"));
-                                    int shadowIndex = Keys.FindIndex(s => s.Contains("Shadows"));
 
-                                    int lengthIndex = Keys.FindIndex(s => s.Contains("Length"));
-                                    int widthIndex = Keys.FindIndex(s => s.Contains("Width"));
-
-                                    int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
-
-                                   
- 
                                     // Type
                                     string type = Values[TypeIndex];
-                                    Debug.Log(goc);
-                                    Debug.Log(type);
+
                                     if (type.IndexOf("Omni") > -1) {
                                         Lcp.type = LightType.Point;
                                         DLP = goc.AddComponent<CF_DualLightProps>();
@@ -201,13 +217,17 @@ public class FBXscaleImport2 : AssetPostprocessor
                                         Lcp.type = LightType.Area;
                                     }
 
-                                    if (targetIndex > -1) {
-                                        CFP = goc.AddComponent<CF_Properties>();
-                                        CFP.lookAtTarget = (FindTarget(GoChildren, Values[targetIndex])).transform;
+
+                                    // FOV
+                                    if (RangeIndex > -1) {
+                                        Lcp.range = Convert.ToSingle(Values[RangeIndex]);
                                     }
 
+                                    // RANGE
+                                    if (fovIndex > -1) {
+                                        Lcp.spotAngle = Convert.ToSingle(Values[fovIndex]);
 
-
+                                    }
                                     // Color
                                     if (rIndex > -1) {
                                         Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
@@ -256,30 +276,45 @@ public class FBXscaleImport2 : AssetPostprocessor
                             }
 
                             case "Collider": {
-                                    //Debug.Log(GoChildren[i].name);
+
                                     break;
                             }
 
                             case "Camera": {
-                                    //Debug.Log(GoChildren[i].name);
+                                Debug.Log(goc);
+                                    cam = goc.AddComponent<Camera>();
+                                    if (vFovIndex > -1) 
+                                       cam.fieldOfView = Convert.ToSingle(Values[vFovIndex]);
+                                    
+                                    if (nearIndex > -1)
+                                        cam.nearClipPlane = Convert.ToSingle(Values[nearIndex]);
+
+                                    if (farIndex > -1)
+                                        cam.farClipPlane = Convert.ToSingle(Values[farIndex]);
                                     break;
                             }
 
                             case "Null": {
-                                    //Debug.Log(GoChildren[i].name);
+
                                     break;
                             }
 
                         }
-
-                        /* How to search in a list for a value
-                        int index = Values.FindIndex(s => s.Contains("Light"));
-                        if (index > -1)
-                            Debug.Log(GoChildren[i].name);
-                        */
+                        if (targetIndex > -1 ) {
+                            CFP = goc.AddComponent<CF_Properties>();
+                            CFP.lookAtTarget = (FindTarget(GoChildren, Values[targetIndex])).transform;
+                        }
+                        if (ClassIndex > -1 && Values[ClassIndex] == "Null") {
+                            CFP = goc.AddComponent<CF_Properties>();
+                            CFP.gizmo = true;
+                            if (sizeIndex > -1)
+                                CFP.size = Convert.ToSingle(Values[sizeIndex]);
+                            else
+                                CFP.size = 1;
+                        }
                     }
                 }
-                //if (Keys[0] == "Light")
+
             }
 
 

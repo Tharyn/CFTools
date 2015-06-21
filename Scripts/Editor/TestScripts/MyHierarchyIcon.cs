@@ -41,6 +41,8 @@ class MyHierarchyIcon
         icons.Add(texture);
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/SkySystem.ico.png", typeof(Texture2D)) as Texture2D;
         icons.Add(texture);
+        texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Target.ico.png", typeof(Texture2D)) as Texture2D;
+        icons.Add(texture);
         EditorApplication.update += UpdateCB;
         //EditorApplication.hierarchyWindowChanged += UpdateCB;
         EditorApplication.hierarchyWindowItemOnGUI += HierarchyItemCB;
@@ -120,6 +122,8 @@ class MyHierarchyIcon
                 else
                     hasChild.Add(true);
             }
+
+
             // Example: mark all lights
             if (g.GetComponent("Sky") != null)
             {
@@ -157,12 +161,18 @@ class MyHierarchyIcon
             if (g.name.IndexOf(".Target") > -1)
             {
                 markedObjects.Add(g.GetInstanceID());
-                iconToUse.Add(4);
+                iconToUse.Add(9);
                 depth.Add(FindDepth(g, 0));
                 if (g.transform.childCount == 0)
                     hasChild.Add(false);
                 else
                     hasChild.Add(true);
+            } else if (g.GetComponent<CF_Properties>() != null) {
+                markedObjects.Add(g.GetInstanceID());
+                iconToUse.Add(4);
+                depth.Add(FindDepth(g, 0));
+                if (g.transform.childCount == 0)
+                    hasChild.Add(false);
             }
             // Example: mark all lights
               
