@@ -38,7 +38,7 @@ public class CF_Properties : MonoBehaviour
     {
         if (lookAtTarget != null)
         {
-            transform.LookAt(lookAtTarget, Vector3.up);
+            transform.LookAt(lookAtTarget, Vector3.left);
             if (invertZ)
                 transform.Rotate(0, 180, 0);
         }

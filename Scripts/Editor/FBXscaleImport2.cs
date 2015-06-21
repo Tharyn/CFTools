@@ -118,6 +118,16 @@ public class FBXscaleImport2 : AssetPostprocessor
         }
     }
 
+    // Finds the target name object in the list by name 
+    GameObject FindTarget(List<GameObject> GoChildren, String name) {
+        GameObject to = null;
+        for (int j = 0; j < GoChildren.Count; j++) {
+            if (GoChildren[j].name.IndexOf(name) > -1 && GoChildren[j].name.IndexOf("Target") > -1)
+                to = GoChildren[j];
+        }
+        Debug.Log(to);
+        return to;
+    }
 
     // FBXscaleImport2 importer 2.0
     void OnPostprocessModel(GameObject go) {
@@ -158,63 +168,89 @@ public class FBXscaleImport2 : AssetPostprocessor
 
                             case "Light": {
                                 if (!goc.GetComponent<Light>()) {
-                                    goc.AddComponent<Light>();
-                                    CF_DualLightProps DLP = goc.AddComponent<CF_DualLightProps>();
 
+                                    Light Lcp = goc.AddComponent<Light>();
+                                    CF_DualLightProps DLP = null;
+                                    CF_Properties CFP = null;
 
                                     int RangeIndex = Keys.FindIndex(s => s.Contains("Range"));
                                     int MultiIndex = Keys.FindIndex(s => s.Contains("Multi"));
                                     int rIndex = Keys.FindIndex(s => s.Contains("R"));
                                     int gIndex = Keys.FindIndex(s => s.Contains("G"));
                                     int bIndex = Keys.FindIndex(s => s.Contains("B"));
-                                    int ShadIndex = Keys.FindIndex(s => s.Contains("Shadows"));
-                                    int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
+                                    int shadowIndex = Keys.FindIndex(s => s.Contains("Shadows"));
+
                                     int lengthIndex = Keys.FindIndex(s => s.Contains("Length"));
                                     int widthIndex = Keys.FindIndex(s => s.Contains("Width"));
 
+                                    int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
+
+                                   
+ 
                                     // Type
                                     string type = Values[TypeIndex];
+                                    Debug.Log(goc);
+                                    Debug.Log(type);
                                     if (type.IndexOf("Omni") > -1) {
-                                        goc.light.type = LightType.Point;
+                                        Lcp.type = LightType.Point;
+                                        DLP = goc.AddComponent<CF_DualLightProps>();
                                     } else if (type.IndexOf("Spot") > -1) {
-                                        goc.light.type = LightType.Spot;
-                                    } else if (type.IndexOf("Vray") > -1) {
-                                        goc.light.type = LightType.Area;
+                                        Lcp.type = LightType.Spot;
+                                        DLP = goc.AddComponent<CF_DualLightProps>();
+                                    } else if (type.IndexOf("VRay") > -1) {
+                                        Lcp.type = LightType.Area;
                                     }
+
+                                    if (targetIndex > -1) {
+                                        CFP = goc.AddComponent<CF_Properties>();
+                                        CFP.lookAtTarget = (FindTarget(GoChildren, Values[targetIndex])).transform;
+                                    }
+
+
 
                                     // Color
                                     if (rIndex > -1) {
                                         Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
-                                        goc.light.color = lColor;
-                                        DLP.rtColor = lColor;
-                                        DLP.bkColor = lColor;
-                                    }
-
-                                    // Color
-                                    if (rIndex > -1) {
-                                        Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
-                                        goc.light.color = lColor;
-                                        DLP.rtColor = lColor;
-                                        DLP.bkColor = lColor;
+                                        Lcp.color = lColor;
+                                        if (DLP != null) {
+                                            DLP.rtColor = lColor;
+                                            DLP.bkColor = lColor;
+                                        }
                                     }
 
                                     // Intensiy
-                                    if (MultiIndex > -1)
-                                        goc.light.intensity = Convert.ToSingle(Values[MultiIndex]);
+                                    if (MultiIndex > -1) {
+                                        float intensity =  Convert.ToSingle(Values[MultiIndex]);
+                                        Lcp.intensity = intensity;
+                                        if (DLP != null) {
+                                            DLP.rtIntensity = intensity;
+                                            DLP.bkIntensity = intensity;
+                                        }
+                                    }
 
                                     // Shadows
-                                    if (ShadIndex > -1) {
-                                        if  (Convert.ToBoolean( Values[ShadIndex]))
-                                            goc.light.shadows = LightShadows.Hard;
-                                        else
-                                            goc.light.shadows = LightShadows.None;
+                                    if (shadowIndex > -1) {
+                                        if (Convert.ToBoolean(Values[shadowIndex])) {
+                                            Lcp.shadows = LightShadows.Hard;
+                                            if (DLP != null) {
+                                                DLP.rtShadows = LightShadows.Hard;
+                                                DLP.bkShadows = LightShadows.Hard;
+                                            }
+                                        } else {
+                                            Lcp.shadows = LightShadows.None;
+                                            if (DLP != null) {
+                                                DLP.rtShadows = LightShadows.None;
+                                                DLP.bkShadows = LightShadows.None;
+                                            }
+                                        }
+                                    }
+
+                                    // Area Size
+                                    if (lengthIndex > -1 && widthIndex > -1) {
+                                        Lcp.areaSize = new Vector2(Convert.ToSingle(Values[lengthIndex]), Convert.ToSingle(Values[widthIndex]));
                                     }
 
 
-
-
-
-                                    Debug.Log(goc.name);
                                 }
                                     break;
                             }
