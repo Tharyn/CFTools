@@ -222,7 +222,12 @@ public class FBXscaleImport2 : AssetPostprocessor
 
                                     // FOV
                                     if (RangeIndex > -1) {
-                                        Lcp.range = Convert.ToSingle(Values[RangeIndex]);
+                                        float range = Convert.ToSingle(Values[RangeIndex]);
+                                        Lcp.range = range;
+                                        if (DLP != null) {
+                                            DLP.rtRange = range;
+                                            DLP.bkRange = range;
+                                        }
                                     }
 
                                     // RANGE
