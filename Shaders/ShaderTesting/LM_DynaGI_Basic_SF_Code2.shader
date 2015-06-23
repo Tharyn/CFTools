@@ -215,7 +215,10 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF_Code2" {
                 #ifndef LIGHTMAP_OFF
 					// ORIGINAL
                     //directDiffuse += lightAccumulation.rgb + lightmapAccumulation.rgb;
-					// DISTANCE CLAMPING FUNCTION
+
+					// DISTANCE CLAMPING FUNCTION (
+						//Could use the clampNode twice if the other lights brighten it to much
+						// or the dot productionand a look up table
 					float clampNode = clamp((1.0 - (distance(_L1Pos.rgb,i.posWorld.rgb)/_L1Falloff)),0,1);
 					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
                 #endif
