@@ -23,13 +23,30 @@ public class CFMenus : MonoBehaviour
     [MenuItem("CF/TEST CODE")]
     static void TestCode()
     {
-        GameObject  A = Selection.objects[0] as GameObject;
+        //GameObject  A = Selection.objects[0] as GameObject;
         /*
         Debug.Log(A.light.alreadyLightmapped);
         Debug.Log(A.light.cullingMask);
         Debug.Log(A.light.renderMode);
          * */
-        Debug.Log(FindDepth(A, 0));
+        //Debug.Log(FindDepth(A, 0));
+
+        //EditorGUIUtility.SetVisibleLayers(1);
+
+        // How to change the visible layers(int layertMask)
+        Tools.visibleLayers = 10;
+        //Tools.lockedLayers = 10;
+
+
+        /* How to change the Light mapping property of a LIGHT
+        Light go = A.light;
+
+        SerializedObject serialObj = new SerializedObject(go);
+        SerializedProperty lightmapProp = serialObj.FindProperty("m_Lightmapping");
+
+        lightmapProp.intValue = 1;
+        serialObj.ApplyModifiedProperties(); 
+         * */
 
     }
 

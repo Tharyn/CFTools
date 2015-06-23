@@ -62,7 +62,7 @@ public class CF_Properties : MonoBehaviour
 		}
 	}
 
-    #if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
+    #if UNITY_EDITOR 
     void OnDrawGizmos()
     {
         aCamera = gameObject.camera;

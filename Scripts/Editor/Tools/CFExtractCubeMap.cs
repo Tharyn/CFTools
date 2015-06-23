@@ -17,12 +17,12 @@ public class CFExtractCubeMap : ScriptableWizard {
 
     void OnWizardCreate ()
     {
-        GameObject go = Selection.activeGameObject;
-        if (go != null)
+        //GameObject go = Selection.activeGameObject;
+        //if (go != null)
         {
-            string skyTexName = go.GetComponent<Sky>().SpecularCube.name ;
-            cubemap = (Cubemap)go.GetComponent<Sky>().SpecularCube;
-            Debug.Log( AssetDatabase.GetAssetPath(go.GetComponent<Sky>().SpecularCube ));
+            //string skyTexName = go.GetComponent<Sky>().SpecularCube.name ;
+            //cubemap = (Cubemap)go.GetComponent<Sky>().SpecularCube;
+            //Debug.Log( AssetDatabase.GetAssetPath(go.GetComponent<Sky>().SpecularCube ));
 
             
            // string[] tempArray = AssetDatabase.FindAssets(mat.name + " t:texture2D");
@@ -31,7 +31,7 @@ public class CFExtractCubeMap : ScriptableWizard {
 
             //Cubemap dTexture = (Cubemap)cubemap;
             //drawTexture = (Texture2D)cubemap;
-            Debug.Log(skyTexName);
+            //Debug.Log(skyTexName);
             Debug.Log(cubemap);
         
 
