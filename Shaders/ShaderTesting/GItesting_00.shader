@@ -1,16 +1,14 @@
 // Shader created with Shader Forge v1.02 
 // Shader Forge (c) Neat Corporation / Joachim Holmer - http://www.acegikmo.com/shaderforge/
 // Note: Manually altering this data may prevent you from opening it in Shader Forge
-/*SF_DATA;ver:1.02;sub:START;pass:START;ps:flbk:,lico:1,lgpr:1,nrmq:1,limd:1,uamb:True,mssp:True,lmpd:True,lprd:False,rprd:False,enco:True,frtr:True,vitr:True,dbil:False,rmgx:True,rpth:1,hqsc:True,hqlp:False,tesm:0,blpr:0,bsrc:0,bdst:1,culm:0,dpts:2,wrdp:True,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,ofsf:0,ofsu:0,f2p0:False;n:type:ShaderForge.SFN_Final,id:9289,x:33841,y:32653,varname:node_9289,prsc:2|diff-3188-OUT,spec-8122-RGB,gloss-1449-OUT;n:type:ShaderForge.SFN_Color,id:3754,x:32826,y:32326,ptovrint:False,ptlb:Color,ptin:_Color,varname:node_3754,prsc:2,glob:False,c1:0.6,c2:0.6,c3:0.6,c4:1;n:type:ShaderForge.SFN_Color,id:8122,x:32826,y:32675,ptovrint:False,ptlb:SpecColor,ptin:_SpecColor,varname:node_8122,prsc:2,glob:False,c1:0.1,c2:0.1,c3:0.1,c4:1;n:type:ShaderForge.SFN_Vector4Property,id:6207,x:32680,y:33008,ptovrint:False,ptlb:L1Pos,ptin:_L1Pos,varname:node_6207,prsc:2,glob:False,v1:0,v2:0,v3:0,v4:0;n:type:ShaderForge.SFN_Slider,id:1449,x:32747,y:32847,ptovrint:False,ptlb:Shininess,ptin:_Shininess,varname:node_1449,prsc:2,min:0,cur:0.3,max:1;n:type:ShaderForge.SFN_Tex2d,id:8161,x:32826,y:32495,ptovrint:False,ptlb:MainTex,ptin:_MainTex,varname:node_8161,prsc:2,ntxv:0,isnm:False;n:type:ShaderForge.SFN_Lerp,id:3188,x:33227,y:32485,varname:node_3188,prsc:2|A-3754-RGB,B-8161-RGB,T-2431-OUT;n:type:ShaderForge.SFN_Vector1,id:2431,x:32999,y:32592,varname:node_2431,prsc:2,v1:0;n:type:ShaderForge.SFN_ValueProperty,id:6820,x:32958,y:33225,ptovrint:False,ptlb:L1Falloff,ptin:_L1Falloff,varname:node_6820,prsc:2,glob:False,v1:20;n:type:ShaderForge.SFN_FragmentPosition,id:5795,x:32680,y:33173,varname:node_5795,prsc:2;n:type:ShaderForge.SFN_Distance,id:4516,x:32958,y:33069,varname:node_4516,prsc:2|A-6207-XYZ,B-5795-XYZ;n:type:ShaderForge.SFN_OneMinus,id:5716,x:33345,y:33101,varname:node_5716,prsc:2|IN-4283-OUT;n:type:ShaderForge.SFN_Divide,id:4283,x:33166,y:33101,varname:node_4283,prsc:2|A-4516-OUT,B-6820-OUT;n:type:ShaderForge.SFN_ConstantClamp,id:6549,x:33540,y:33101,varname:node_6549,prsc:2,min:0,max:1|IN-5716-OUT;n:type:ShaderForge.SFN_Color,id:2900,x:32877,y:33347,ptovrint:False,ptlb:GI,ptin:_GI,varname:node_2900,prsc:2,glob:False,c1:0.5,c2:0.5,c3:0.5,c4:1;proporder:8161-3754-8122-1449-6207-6820;pass:END;sub:END;*/
+/*SF_DATA;ver:1.02;sub:START;pass:START;ps:flbk:,lico:1,lgpr:1,nrmq:1,limd:1,uamb:False,mssp:True,lmpd:True,lprd:False,rprd:False,enco:True,frtr:True,vitr:True,dbil:True,rmgx:True,rpth:1,hqsc:True,hqlp:False,tesm:0,blpr:0,bsrc:0,bdst:1,culm:0,dpts:2,wrdp:True,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,ofsf:0,ofsu:0,f2p0:False;n:type:ShaderForge.SFN_Final,id:8820,x:33390,y:32719,varname:node_8820,prsc:2|diff-5061-RGB,spec-5870-RGB,gloss-9330-OUT,normal-770-RGB;n:type:ShaderForge.SFN_Tex2d,id:5061,x:32686,y:32527,ptovrint:False,ptlb:MainTex,ptin:_MainTex,varname:node_5061,prsc:2,tex:02ff7fefde06df342b1a15b1e46fcbc3,ntxv:0,isnm:False;n:type:ShaderForge.SFN_Slider,id:9330,x:32599,y:32949,ptovrint:False,ptlb:Shininess,ptin:_Shininess,varname:node_9330,prsc:2,min:0,cur:0.5,max:1;n:type:ShaderForge.SFN_Color,id:5870,x:32678,y:32757,ptovrint:False,ptlb:SpecColor,ptin:_SpecColor,varname:node_5870,prsc:2,glob:False,c1:0.5,c2:0.5,c3:0.5,c4:1;n:type:ShaderForge.SFN_Tex2d,id:770,x:32678,y:33092,ptovrint:False,ptlb:BumpMap,ptin:_BumpMap,varname:node_770,prsc:2,ntxv:3,isnm:True;proporder:5061-5870-9330-770;pass:END;sub:END;*/
 
-Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
+Shader "GITesting/Specular/GItesting_00" {
     Properties {
         _MainTex ("MainTex", 2D) = "white" {}
-        _Color ("Color", Color) = (0.6,0.6,0.6,1)
-        _SpecColor ("SpecColor", Color) = (0.1,0.1,0.1,1)
-        _Shininess ("Shininess", Range(0, 1)) = 0.3
-        _L1Pos ("L1Pos", Vector) = (0,0,0,0)
-        _L1Falloff ("L1Falloff", Float ) = 20
+        _SpecColor ("SpecColor", Color) = (0.5,0.5,0.5,1)
+        _Shininess ("Shininess", Range(0, 1)) = 0.5
+        _BumpMap ("BumpMap", 2D) = "bump" {}
     }
     SubShader {
         Tags {
@@ -32,23 +30,26 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
             #include "Lighting.cginc"
             #pragma exclude_renderers xbox360 ps3 flash d3d11_9x 
             #pragma target 3.0
-            uniform fixed4 unity_Ambient;
             uniform float _Shininess;
+            uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
                 float4 tangent : TANGENT;
+                float2 texcoord0 : TEXCOORD0;
                 float2 texcoord1 : TEXCOORD1;
             };
             struct VertexOutput {
                 float4 pos : SV_POSITION;
-                float4 posWorld : TEXCOORD0;
-                float3 normalDir : TEXCOORD1;
-                float3 tangentDir : TEXCOORD2;
-                float3 binormalDir : TEXCOORD3;
+                float2 uv0 : TEXCOORD0;
+                float4 posWorld : TEXCOORD1;
+                float3 normalDir : TEXCOORD2;
+                float3 tangentDir : TEXCOORD3;
+                float3 binormalDir : TEXCOORD4;
             };
             VertexOutput vert (VertexInput v) {
                 VertexOutput o;
+                o.uv0 = v.texcoord0;
                 o.normalDir = mul(_Object2World, float4(v.normal,0)).xyz;
                 o.tangentDir = normalize( mul( _Object2World, float4( v.tangent.xyz, 0.0 ) ).xyz );
                 o.binormalDir = normalize(cross(o.normalDir, o.tangentDir) * v.tangent.w);
@@ -61,7 +62,9 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
 /////// Vectors:
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-                float3 normalDirection = i.normalDir;
+                float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(i.uv0, _BumpMap)));
+                float3 normalLocal = _BumpMap_var.rgb;
+                float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
                 return fixed4( normalDirection * 0.5 + 0.5, max(_Shininess,0.0078125) );
             }
             ENDCG
@@ -86,16 +89,15 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
             #if defined (SHADER_API_XBOX360) && defined (HDR_LIGHT_PREPASS_ON)
                 sampler2D _LightSpecBuffer;
             #endif
-            uniform fixed4 unity_Ambient;
             #ifndef LIGHTMAP_OFF
                 float4 unity_LightmapST;
                 sampler2D unity_Lightmap;
                 sampler2D unity_LightmapInd;
                 float4 unity_LightmapFade;
             #endif
-            uniform float4 _Color;
-            uniform float _Shininess;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform float _Shininess;
+            uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -142,14 +144,16 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
 /////// Vectors:
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-                float3 normalDirection = i.normalDir;
+                float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(i.uv0, _BumpMap)));
+                float3 normalLocal = _BumpMap_var.rgb;
+                float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
                 #ifndef LIGHTMAP_OFF
                     float4 lmtex = tex2D(unity_Lightmap,i.uvLM);
                     #ifndef DIRLIGHTMAP_OFF
                         float3 lightmap = DecodeLightmap(lmtex);
                         float3 scalePerBasisVector = DecodeLightmap(tex2D(unity_LightmapInd,i.uvLM));
                         UNITY_DIRBASIS
-                        half3 normalInRnmBasis = saturate (mul (unity_DirBasis, float3(0,0,1)));
+                        half3 normalInRnmBasis = saturate (mul (unity_DirBasis, normalLocal));
                         lightmap *= dot (normalInRnmBasis, scalePerBasisVector);
                     #else
                         float3 lightmap = DecodeLightmap(lmtex);
@@ -177,7 +181,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                     #else
                         fixed4 lmIndTex = tex2D(unity_LightmapInd, i.uvLM);
                         half3 scalePerBasisVectorDiffuse;
-                        half3 lm = DirLightmapDiffuse (unity_DirBasis, lmtex, lmIndTex, half3(0,0,1), 1, scalePerBasisVectorDiffuse);
+                        half3 lm = DirLightmapDiffuse (unity_DirBasis, lmtex, lmIndTex, normalLocal, 1, scalePerBasisVectorDiffuse);
                         half3 lightDir = normalize (scalePerBasisVectorDiffuse.x * unity_DirBasis[0] + scalePerBasisVectorDiffuse.y * unity_DirBasis[1] + scalePerBasisVectorDiffuse.z * unity_DirBasis[2]);
                         lightDir = mul(lightDir, tangentTransform);
                         half3 h = normalize (lightDir + viewDirection);
@@ -194,7 +198,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 float specularMonochrome = dot(specularColor,float3(0.3,0.59,0.11));
                 float specPow = max( 2, _Shininess * 128 );
                 float normTerm = (specPow + 8.0 ) / (8.0 * Pi);
-                float3 directSpecular = (lightAccumulation.rgb * 2)*lightAccumulation.a*normTerm;
+                float3 directSpecular = lightAccumulation.rgb*lightAccumulation.a*normTerm;
                 float3 specular = directSpecular * specularColor;
                 #ifndef LIGHTMAP_OFF
                     #ifndef DIRLIGHTMAP_OFF
@@ -202,18 +206,16 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                     #endif
                 #endif
 /////// Diffuse:
-                float3 indirectDiffuse = float3(0,0,0);
                 #ifndef LIGHTMAP_OFF
                     float3 directDiffuse = float3(0,0,0);
                 #else
-                    float3 directDiffuse = lightAccumulation.rgb * 0.5;
+                    float3 directDiffuse = lightAccumulation.rgb;
                 #endif
                 #ifndef LIGHTMAP_OFF
                     directDiffuse += lightAccumulation.rgb + lightmapAccumulation.rgb;
                 #endif
-                indirectDiffuse += unity_Ambient.rgb*0.5; // Ambient Light
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
-                float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+                float3 diffuse = directDiffuse * _MainTex_var.rgb;
                 diffuse *= 1-specularMonochrome;
 /// Final Color:
                 float3 finalColor = diffuse + specular;
@@ -245,9 +247,9 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                     sampler2D unity_LightmapInd;
                 #endif
             #endif
-            uniform float4 _Color;
-            uniform float _Shininess;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform float _Shininess;
+            uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -287,14 +289,16 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
 /////// Vectors:
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-                float3 normalDirection = i.normalDir;
+                float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(i.uv0, _BumpMap)));
+                float3 normalLocal = _BumpMap_var.rgb;
+                float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
                 #ifndef LIGHTMAP_OFF
                     float4 lmtex = tex2D(unity_Lightmap,i.uvLM);
                     #ifndef DIRLIGHTMAP_OFF
                         float3 lightmap = DecodeLightmap(lmtex);
                         float3 scalePerBasisVector = DecodeLightmap(tex2D(unity_LightmapInd,i.uvLM));
                         UNITY_DIRBASIS
-                        half3 normalInRnmBasis = saturate (mul (unity_DirBasis, float3(0,0,1)));
+                        half3 normalInRnmBasis = saturate (mul (unity_DirBasis, normalLocal));
                         lightmap *= dot (normalInRnmBasis, scalePerBasisVector);
                     #else
                         float3 lightmap = DecodeLightmap(lmtex);
@@ -313,7 +317,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 float3 lightColor = _LightColor0.rgb;
                 float3 halfDirection = normalize(viewDirection+lightDirection);
 ////// Lighting:
-                float attenuation = LIGHT_ATTENUATION(i);
+                float attenuation = LIGHT_ATTENUATION(i)*2;
                 float3 attenColor = attenuation * _LightColor0.xyz;
                 float Pi = 3.141592654;
                 float InvPi = 0.31830988618;
@@ -342,7 +346,6 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 #endif
 /////// Diffuse:
                 NdotL = max(0.0,dot( normalDirection, lightDirection ));
-                float3 indirectDiffuse = float3(0,0,0);
                 #ifndef LIGHTMAP_OFF
                     float3 directDiffuse = float3(0,0,0);
                 #else
@@ -359,9 +362,8 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                         directDiffuse += lightmap.rgb;
                     #endif
                 #endif
-                indirectDiffuse += UNITY_LIGHTMODEL_AMBIENT.rgb; // Ambient Light
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
-                float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+                float3 diffuse = directDiffuse * _MainTex_var.rgb;
                 diffuse *= 1-specularMonochrome;
 /// Final Color:
                 float3 finalColor = diffuse + specular;
@@ -388,9 +390,9 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
             #pragma multi_compile_fwdadd_fullshadows
             #pragma exclude_renderers xbox360 ps3 flash d3d11_9x 
             #pragma target 3.0
-            uniform float4 _Color;
-            uniform float _Shininess;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform float _Shininess;
+            uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -424,12 +426,14 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
 /////// Vectors:
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-                float3 normalDirection = i.normalDir;
+                float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(i.uv0, _BumpMap)));
+                float3 normalLocal = _BumpMap_var.rgb;
+                float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
                 float3 lightDirection = normalize(lerp(_WorldSpaceLightPos0.xyz, _WorldSpaceLightPos0.xyz - i.posWorld.xyz,_WorldSpaceLightPos0.w));
                 float3 lightColor = _LightColor0.rgb;
                 float3 halfDirection = normalize(viewDirection+lightDirection);
 ////// Lighting:
-                float attenuation = LIGHT_ATTENUATION(i);
+                float attenuation = LIGHT_ATTENUATION(i)*2;
                 float3 attenColor = attenuation * _LightColor0.xyz;
                 float Pi = 3.141592654;
                 float InvPi = 0.31830988618;
@@ -447,7 +451,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF" {
                 NdotL = max(0.0,dot( normalDirection, lightDirection ));
                 float3 directDiffuse = max( 0.0, NdotL)*InvPi * attenColor;
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
-                float3 diffuse = directDiffuse * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+                float3 diffuse = directDiffuse * _MainTex_var.rgb;
                 diffuse *= 1-specularMonochrome;
 /// Final Color:
                 float3 finalColor = diffuse + specular;
