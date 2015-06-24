@@ -10,10 +10,22 @@ public class CFExtractCubeMap : ScriptableWizard {
     Texture2D drawTexture;
     byte[] bytes;
 
+
     void OnWizardUpdate () {
         //TV string helpString = "Select cubemap to save to individual png";
         //TV bool isValid = (cubemap != null);
-    }	
+    }
+
+
+    void FlipTextureVertically() {
+
+
+    }
+
+    void FlipTextureHorozontally() {
+
+
+    }
 
     void OnWizardCreate ()
     {
