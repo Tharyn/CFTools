@@ -3,10 +3,10 @@
 // Note: Manually altering this data may prevent you from opening it in Shader Forge
 /*SF_DATA;ver:1.02;sub:START;pass:START;ps:flbk:,lico:1,lgpr:1,nrmq:1,limd:1,uamb:True,mssp:True,lmpd:True,lprd:False,rprd:False,enco:True,frtr:True,vitr:True,dbil:False,rmgx:True,rpth:1,hqsc:True,hqlp:False,tesm:0,blpr:0,bsrc:0,bdst:1,culm:0,dpts:2,wrdp:True,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,ofsf:0,ofsu:0,f2p0:False;n:type:ShaderForge.SFN_Final,id:9289,x:33841,y:32653,varname:node_9289,prsc:2|diff-3188-OUT,spec-8122-RGB,gloss-1449-OUT,amspl-8768-RGB;n:type:ShaderForge.SFN_Color,id:3754,x:32826,y:32326,ptovrint:False,ptlb:Color,ptin:_Color,varname:node_3754,prsc:2,glob:False,c1:0.6,c2:0.6,c3:0.6,c4:1;n:type:ShaderForge.SFN_Color,id:8122,x:32826,y:32675,ptovrint:False,ptlb:SpecColor,ptin:_SpecColor,varname:node_8122,prsc:2,glob:False,c1:0.1,c2:0.1,c3:0.1,c4:1;n:type:ShaderForge.SFN_Vector4Property,id:6207,x:32680,y:33008,ptovrint:False,ptlb:L1Pos,ptin:_L1Pos,varname:node_6207,prsc:2,glob:False,v1:0,v2:0,v3:0,v4:0;n:type:ShaderForge.SFN_Slider,id:1449,x:32747,y:32847,ptovrint:False,ptlb:Shininess,ptin:_Shininess,varname:node_1449,prsc:2,min:0,cur:0.5,max:1;n:type:ShaderForge.SFN_Tex2d,id:8161,x:32826,y:32495,ptovrint:False,ptlb:MainTex,ptin:_MainTex,varname:node_8161,prsc:2,ntxv:0,isnm:False;n:type:ShaderForge.SFN_Lerp,id:3188,x:33227,y:32485,varname:node_3188,prsc:2|A-3754-RGB,B-8161-RGB,T-2431-OUT;n:type:ShaderForge.SFN_Vector1,id:2431,x:32999,y:32592,varname:node_2431,prsc:2,v1:0;n:type:ShaderForge.SFN_ValueProperty,id:6820,x:32958,y:33225,ptovrint:False,ptlb:L1Falloff,ptin:_L1Falloff,varname:node_6820,prsc:2,glob:False,v1:20;n:type:ShaderForge.SFN_FragmentPosition,id:5795,x:32680,y:33173,varname:node_5795,prsc:2;n:type:ShaderForge.SFN_Distance,id:4516,x:32958,y:33069,varname:node_4516,prsc:2|A-6207-XYZ,B-5795-XYZ;n:type:ShaderForge.SFN_OneMinus,id:5716,x:33345,y:33101,varname:node_5716,prsc:2|IN-4283-OUT;n:type:ShaderForge.SFN_Divide,id:4283,x:33166,y:33101,varname:node_4283,prsc:2|A-4516-OUT,B-6820-OUT;n:type:ShaderForge.SFN_ConstantClamp,id:6549,x:33540,y:33101,varname:node_6549,prsc:2,min:0,max:1|IN-5716-OUT;n:type:ShaderForge.SFN_SkyshopSpec,id:8768,x:33330,y:32867,varname:node_8768,prsc:2,sprot:True,spblend:True,splmocc:True|GLOSS-1449-OUT;proporder:8161-3754-8122-1449-6207-6820;pass:END;sub:END;*/
 
-Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code" {
+Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
     Properties {
         _MainTex ("MainTex", 2D) = "white" {}
-        _Color ("Color", Color) = (0.6,0.6,0.6,1)
+        //_Color ("Color", Color) = (0.6,0.6,0.6,1)
         _SpecColor ("SpecColor", Color) = (0.1,0.1,0.1,1)
         _Shininess ("Shininess", Range(0, 1)) = 0.5
 
@@ -103,7 +103,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code" {
                 sampler2D unity_LightmapInd;
                 float4 unity_LightmapFade;
             #endif
-            uniform float4 _Color;
+            //uniform float4 _Color;
             uniform float _Shininess;
 
 			// L1 Additions
@@ -362,7 +362,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code" {
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
 
                 //TV float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
-				float3 diffuse = directDiffuse * lerp(_Color.rgb,_MainTex_var.rgb,1);
+				float3 diffuse = directDiffuse * _MainTex_var.rgb; //lerp(_Color.rgb,_MainTex_var.rgb,1);
 
                 diffuse *= 1-specularMonochrome;
 
@@ -399,7 +399,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code" {
                     sampler2D unity_LightmapInd;
                 #endif
             #endif
-            uniform float4 _Color;
+            //uniform float4 _Color;
             uniform float _Shininess;
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
             #ifndef MARMO_LIGHTMAP_DEFINED
@@ -628,7 +628,8 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code" {
                 #endif
                 indirectDiffuse += UNITY_LIGHTMODEL_AMBIENT.rgb; // Ambient Light
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
-                float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+                //float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+				float3 diffuse = (directDiffuse + indirectDiffuse) *_MainTex_var.rgb;
                 diffuse *= 1-specularMonochrome;
 /// Final Color:
                 float3 finalColor = diffuse + specular;
@@ -715,7 +716,8 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code" {
                 NdotL = max(0.0,dot( normalDirection, lightDirection ));
                 float3 directDiffuse = max( 0.0, NdotL)*InvPi * attenColor;
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
-                float3 diffuse = directDiffuse * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+				//float3 diffuse = directDiffuse * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
+                float3 diffuse = directDiffuse * _MainTex_var.rgb;
                 diffuse *= 1-specularMonochrome;
 /// Final Color:
                 float3 finalColor = diffuse + specular;
