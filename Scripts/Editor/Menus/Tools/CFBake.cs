@@ -38,6 +38,8 @@ public class CFBake : MonoBehaviour {
 
 
                 if (DualLightProps[i].bkOn == true) {
+                    aLight.enabled = true;
+
                     SerializedObject serialObj = new SerializedObject(aLight);
                     SerializedProperty lightmapProp = serialObj.FindProperty("m_Lightmapping");
 
@@ -68,6 +70,8 @@ public class CFBake : MonoBehaviour {
 
 
                 if (DualLightProps[i].rtOn == true) {
+                    aLight.enabled = true;
+
                     SerializedObject serialObj = new SerializedObject(aLight);
                     SerializedProperty lightmapProp = serialObj.FindProperty("m_Lightmapping");
 

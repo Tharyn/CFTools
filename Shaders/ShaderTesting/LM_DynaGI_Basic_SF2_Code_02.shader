@@ -340,7 +340,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
 
 				// THIS IS IMPORTANT
 				// is controles the light ratio
-				directSpecular *= .1;
+				directSpecular *= .3;
 
 
 
