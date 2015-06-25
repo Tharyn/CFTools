@@ -14,7 +14,11 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
 
 		// L1 Additions
         _L1Pos ("L1Pos", Vector) = (0,0,0,0)
+		_L2Pos ("L2Pos", Vector) = (0,0,0,0)
+
 		_L1Intensity ("L1Intensity ", Float ) = 1
+		_L2Intensity ("L2Intensity ", Float ) = 1
+
         _L1Falloff ("L1Falloff", Float ) = 20
 		
     }
@@ -109,7 +113,11 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
 			// L1 Additions
 			uniform float4 _RoomAmb;
 			uniform float4 _L1Pos;
+			uniform float4 _L2Pos;
+
 			uniform float _L1Intensity;
+			uniform float _L2Intensity;
+
 			uniform float _L1Falloff;
 
             uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
@@ -272,8 +280,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
 /////// Vectors:
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
 				float3 L1Direction = normalize(_L1Pos.xyz - i.posWorld.xyz);
-				// _L1Pos
-				// _L1Intensity
+				float3 L2Direction = normalize(_L2Pos.xyz - i.posWorld.xyz);
 
                 float3 normalDirection = i.normalDir;
                 float3 viewReflectDirection = reflect( -viewDirection, normalDirection );
@@ -326,19 +333,25 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
 ////// Specular:
                 float3 specularColor = _SpecColor.rgb;
                 float specularMonochrome = dot(specularColor,float3(0.3,0.59,0.11));
+
                 float specPow = max( 2, _Shininess * 128 );
                 float normTerm = (specPow + 8.0 ) / (8.0 * Pi);
-                float3 directSpecular = (lightAccumulation.rgb * 2)*lightAccumulation.a*normTerm;
+                float3 directSpecular = (lightAccumulation.rgb * 2) * lightAccumulation.a * normTerm;
 
+				// THIS IS IMPORTANT
+				// is controles the light ratio
+				directSpecular *= .1;
 
 
 
 				//TV This is the line that the Light map is multiplied into the reflection
                 //float3 indirectSpecular = (0 + ((lightmap+lightmap)*marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _Shininess)).rgb);
-				float3 indirectSpecular = (0 + (marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _Shininess)).rgb);
+				float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _Shininess).rgb;
 
-				// Where we contyrol the reflection by the light intensity
-				indirectSpecular *=	(dot(L1Direction, viewReflectDirection) * _L1Intensity)+(.3*_L1Intensity);
+				// Where we control the reflection by the light intensity
+				float L1pow = (dot(L1Direction, viewReflectDirection) * _L1Intensity);
+				float L2pow = (dot(L2Direction, viewReflectDirection) * _L2Intensity);
+				indirectSpecular *=	_RoomAmb;
 
                 float3 specular = (directSpecular + indirectSpecular) * specularColor;
                 #ifndef LIGHTMAP_OFF
@@ -355,8 +368,14 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
                 #endif
                 #ifndef LIGHTMAP_OFF
                     //TV directDiffuse += lightAccumulation.rgb + lightmapAccumulation.rgb;
-					float clampNode = clamp((1.0 - (distance(_L1Pos.rgb,i.posWorld.rgb)/_L1Falloff)),0,1);
-					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
+					//float clampNode = clamp((1.0 - (distance(_L1Pos.rgb,i.posWorld.rgb)/_L1Falloff)),0,1);
+
+					// GI BASED ON DISTANCE
+					//directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
+
+					// BASED IN SINGLE AMBIENT VALUE
+					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * _RoomAmb) ;
+			
                 #endif
                 //TV indirectDiffuse += unity_Ambient.rgb*0.5; // Ambient Light
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
@@ -364,6 +383,7 @@ Shader "DynaGI/Specular/LM_DynaGI_Basic_SF2_Code_02" {
                 //TV float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
 				float3 diffuse = directDiffuse * _MainTex_var.rgb; //lerp(_Color.rgb,_MainTex_var.rgb,1);
 
+				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
 
 /// Final Color:
