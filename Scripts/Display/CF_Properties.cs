@@ -36,13 +36,31 @@ public class CF_Properties : MonoBehaviour
 
     void Update()
     {
-        if (lookAtTarget != null)
-        {
-            transform.LookAt(lookAtTarget, Vector3.up);
-            if (invertZ)
-                transform.Rotate(0, 180, 0);
+        if (!Application.isPlaying) {
+            if (lookAtTarget != null) {
+                transform.LookAt(lookAtTarget, Vector3.up);
+                if (invertZ)
+                    transform.Rotate(0, 180, 0);
+            }
         }
     }
+
+
+
+    void FixedUpdate() {
+        if (Application.isPlaying) {
+            if (lookAtTarget != null) {
+                transform.LookAt(lookAtTarget, Vector3.up);
+                if (invertZ)
+                    transform.Rotate(0, 180, 0);
+            }
+        }
+    }
+
+
+
+
+
 
     // Add code to delete target with dialog (Can not use Unity Editor dialog here)
     /*

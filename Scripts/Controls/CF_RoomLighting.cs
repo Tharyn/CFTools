@@ -26,7 +26,7 @@ public class CF_RoomLighting : MonoBehaviour {
         for (int i = 0; i < mRenderers.Length; i++) {
 
             if ( bounds.Contains(mRenderers[i].gameObject.transform.position) ) {
-                Debug.Log(mRenderers[i].gameObject);
+                
                 
                 for (int j = 0; j < mRenderers[i].sharedMaterials.Length; j++ ) {
                     if (mRenderers[i].sharedMaterials[j].shader.name == shader.name)
@@ -44,27 +44,51 @@ public class CF_RoomLighting : MonoBehaviour {
         CollectMaterials();
 
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    void SetMaterialProperties() {
         if (L1 != null && L2 != null) {
-    
-            Color giTotal = GIColor * GIAmt * (L1.intensity + L2.intensity);
+
+            // STUPID EXPENSIVE
+            //CollectMaterials();
+
+            float L1mag;
+            if (L1.enabled && L1.gameObject.activeSelf)
+                L1mag = L1.intensity;
+            else
+                L1mag = 0;
+
+            float L2mag;
+            if (L2.enabled && L2.gameObject.activeSelf)
+                L2mag = L2.intensity;
+            else
+                L2mag = 0;
+
+            Color giTotal = GIColor * GIAmt * (L1mag + L2mag);
 
             for (int i = 0; i < Materials.Count; i++) {
                 Materials[i].SetVector("_RoomAmb", giTotal);
 
-                Materials[i].SetFloat("_L1Intensity", L1.intensity);
-                Materials[i].SetFloat("_L2Intensity", L2.intensity);
-                
-                Materials[i].SetVector ("_L1Pos", L1.gameObject.transform.position);
+                Materials[i].SetFloat("_L1Intensity", L1mag);
+                Materials[i].SetFloat("_L2Intensity", L2mag);
+
+                Materials[i].SetVector("_L1Pos", L1.gameObject.transform.position);
                 Materials[i].SetVector("_L2Pos", L2.gameObject.transform.position);
-
-                //Materials[i].SetFloat("_L1Falloff", L1.range * L1rangeM);
-                
             }
-
         }
+    }
 
+	// Update is called once per frame
+	void Update () {
+        if (!Application.isPlaying) {
+            SetMaterialProperties();
+        }
 	}
+
+    // Update is called once per frame
+    void FixedUpdate() {
+        if (Application.isPlaying) {
+            SetMaterialProperties();
+        }
+	}
+
 }

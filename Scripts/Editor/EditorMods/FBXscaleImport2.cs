@@ -30,12 +30,14 @@ public class FBXscaleImport2 : AssetPostprocessor
             ModelImporter importer = assetImporter as ModelImporter;
             importer.globalScale = 0.0833333f;
         }
+
+        // Set static object parameters
         if (assetPath.Contains("(Sets)"))
         {
             ModelImporter importer = assetImporter as ModelImporter;
             importer.generateSecondaryUV = true;
             importer.secondaryUVPackMargin = 8;
-        }
+        } 
 
     }
 
@@ -86,7 +88,6 @@ public class FBXscaleImport2 : AssetPostprocessor
     }
 
 
-    
     // Does file exist
     bool DoesAssetExits(string[] Paths, string fileName){
 
@@ -102,12 +103,7 @@ public class FBXscaleImport2 : AssetPostprocessor
     // Read node data file
     static void MaxDataParser(ref List<string> Keys, ref List<string> Values, string dataFile)
     {
-        //Debug.Log("In MaxDataParser");
-        //string cacheLocation = (Application.dataPath + "/(Cache)/FromMax.cache");
         StreamReader reader = new StreamReader(File.OpenRead(@dataFile));
-
-        //Debug.Log(reader);
-        //Debug.Log(reader.EndOfStream);
 
         while (!reader.EndOfStream)
         {
@@ -116,10 +112,8 @@ public class FBXscaleImport2 : AssetPostprocessor
 
             string[] values = line.Split(':');
 
-            //Debug.Log(values[0]);
             Keys.Add(values[0]);
 
-            //Debug.Log(values[1]);
             Values.Add(values[1]);
         }
     }
@@ -137,11 +131,10 @@ public class FBXscaleImport2 : AssetPostprocessor
 
     // FBXscaleImport2 importer 2.0
     void OnPostprocessModel(GameObject go) {
-        //Debug.Log(assetPath);
-        //Debug.Log(GetFilePath(assetPath));
-        //Debug.Log(GetFileName(assetPath, false));
 
         if ( assetPath.Contains("(Sets)")) {
+
+
             // Get all children
             List<GameObject> GoChildren = new List<GameObject>();
             GoChildren.Add(go); // ADD SELF
@@ -149,13 +142,12 @@ public class FBXscaleImport2 : AssetPostprocessor
             
             string[] Paths = new string[1];
             Paths[0] = (GetFilePath(assetPath) + "Data");
-            //Debug.Log(Paths[0] );
-            //Debug.Log( DoesAssetExits(Paths, GoChildren[3].name));
 
             // For i in Children read data files
             for (int i = 0; i < GoChildren.Count; i++) {
-
+                
                 GameObject goc = GoChildren[i];
+                goc.isStatic = true;
                 // Has data file ?
                 if (DoesAssetExits(Paths, goc.name)) {
                     List<string> Keys = new List<string>();
@@ -193,6 +185,49 @@ public class FBXscaleImport2 : AssetPostprocessor
                     CF_Properties CFP = null;
                     CF_DualLightProps DLP = null;
                     Camera cam = null;
+
+                    if (goc.renderer != null) {
+                        Material[] mats = goc.renderer.sharedMaterials;
+
+                        for (int m = 0; m < mats.Length; m++) {
+                            Material mat = mats[m];
+                            string[] strSpl = new string[] { "." };
+                            string matName = mat.name.Split(strSpl, StringSplitOptions.RemoveEmptyEntries)[0];
+                            Debug.Log(matName);
+
+                            // SHADER ASSIGNMENT
+                            mat.shader = Shader.Find("DeepLight/DL_LM_SS");
+
+                            string[] tempArray = AssetDatabase.FindAssets(matName + " t:texture2D");
+
+                            for (int t = 0; t < tempArray.Length; t++) {
+                                string assetPathStr = AssetDatabase.GUIDToAssetPath(tempArray[t]);
+                                Texture2D tempTex = Resources.LoadAssetAtPath(assetPathStr, typeof(Texture2D)) as Texture2D;
+
+
+                                if (assetPathStr.Contains("Albedo")) {
+                                    mat.SetTexture("_MainTex", tempTex);
+                                }
+                                if (assetPathStr.Contains("Spec")) {
+                                    mat.SetTexture("_SpecMap", tempTex);
+                                }
+                                /*
+                                if (assetPathStr.Contains("AO")) {
+                                    mat.SetTexture("_AOMap", tempTex);
+                                }
+                                if (assetPathStr.Contains("Norm")) {
+                                    mat.SetTexture("_BumpMap", tempTex);
+                                }
+                                */
+                               
+                            }                        
+                        }
+
+                    }
+
+
+
+
 
                     // IF both the class and the type are defined in the data file continue
                     if (ClassIndex > -1 && TypeIndex > -1) {
