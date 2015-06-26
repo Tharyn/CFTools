@@ -7,6 +7,8 @@ Shader "DeepLight/DL_LM_SS" {
 		_SpecMap ("SpecMap", 2D) = "white" {}
 		_BumpMap ("BumpMap", 2D) = "bump" {}
 
+		_AoMap ("AoMap", 2D) = "white" {}
+
         _SpecColor ("SpecColor", Color) = (0.2,0.2,0.2,1)
         _Shininess ("Shininess", Range(0, 1)) = 0.7
 
@@ -17,7 +19,9 @@ Shader "DeepLight/DL_LM_SS" {
 		_L2Pos ("L2Pos", Vector) = (0,0,0,0)
 
 		_L1Intensity ("L1Intensity ", Float ) = 1
+		_L1Color ("L1Color", Color) = (0.2,0.2,0.2,1)
 		_L2Intensity ("L2Intensity ", Float ) = 1
+		_L2Color ("L2Color", Color) = (0.2,0.2,0.2,1)
 
         _L1Falloff ("L1Falloff", Float ) = 20
 		
@@ -63,7 +67,7 @@ Shader "DeepLight/DL_LM_SS" {
                 float3 tangentDir : TEXCOORD3;
                 float3 binormalDir : TEXCOORD4;
             };
-			//uniform float4 _SpecMap_var = tex2D(_SpecMap,TRANSFORM_TEX(i.uv0, _SpecMap));
+
             VertexOutput vert (VertexInput v) {
                 VertexOutput o;
                 o.uv0 = v.texcoord0;
@@ -129,7 +133,10 @@ Shader "DeepLight/DL_LM_SS" {
 			uniform float4 _L2Pos;
 
 			uniform float _L1Intensity;
+			uniform float4 _L1Color;
+
 			uniform float _L2Intensity;
+			uniform float4 _L2Color;
 
 			uniform float _L1Falloff;
 
@@ -139,6 +146,8 @@ Shader "DeepLight/DL_LM_SS" {
 			uniform float4 _SpecMap_ST;
 			uniform sampler2D _BumpMap; 
 			uniform float4 _BumpMap_ST;
+			uniform sampler2D _AoMap;
+			uniform float4 _AoMap_ST;
 
             #ifndef MARMO_LIGHTMAP_DEFINED
             #define MARMO_LIGHTMAP_DEFINED
@@ -320,6 +329,7 @@ Shader "DeepLight/DL_LM_SS" {
                 #endif
 ////// Lighting:
 				float4 _SpecMap_var = tex2D(_SpecMap,TRANSFORM_TEX(i.uv0, _SpecMap));
+				float4 _AoMap_var = tex2D(_AoMap,TRANSFORM_TEX(i.uv0, _AoMap));
 
                 half4 lightAccumulation = tex2Dproj(_LightBuffer, UNITY_PROJ_COORD(i.projPos));
                 #if defined (SHADER_API_GLES) || defined (SHADER_API_GLES3)
@@ -359,7 +369,7 @@ Shader "DeepLight/DL_LM_SS" {
                 float3 specularColor = _SpecMap_var.rgb;
                 float specularMonochrome = dot(specularColor,float3(0.3,0.59,0.11));
 
-                float specPow = max( 2, _SpecMap_var.a * 128 );
+                float specPow = max( 2, _SpecMap_var.a * 128 ) ;
                 float normTerm = (specPow + 8.0 ) / (8.0 * Pi);
                 float3 directSpecular = (lightAccumulation.rgb * 2)*lightAccumulation.a * normTerm;
 
@@ -374,8 +384,8 @@ Shader "DeepLight/DL_LM_SS" {
 				float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
 
 				// Where we control the reflection by the light intensity
-				float L1pow = (dot(L1Direction, viewReflectDirection) * _L1Intensity);
-				float L2pow = (dot(L2Direction, viewReflectDirection) * _L2Intensity);
+				float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
+				float3 L2pow =  _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
 				indirectSpecular *= L1pow + L2pow;
 
@@ -385,9 +395,9 @@ Shader "DeepLight/DL_LM_SS" {
 				#endif
 
 
-				//indirectSpecular +=	_RoomAmb;
+				indirectSpecular +=	_RoomAmb*.02;
 
-                float3 specular = (directSpecular + indirectSpecular) * specularColor;
+                float3 specular = (directSpecular + indirectSpecular) * specularColor ;
                 #ifndef LIGHTMAP_OFF
                     #ifndef DIRLIGHTMAP_OFF
                         specular += specColor;
@@ -407,15 +417,18 @@ Shader "DeepLight/DL_LM_SS" {
 					// GI BASED ON DISTANCE
 					//directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
 
+					_AoMap_var *= .5;
+					_AoMap_var += .5;
+
 					// BASED IN SINGLE AMBIENT VALUE
-					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * _RoomAmb) ;
+					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb ) + ( lightmapAccumulation.rgb * _RoomAmb * _AoMap_var ) ;
 			
                 #endif
                 //TV indirectDiffuse += unity_Ambient.rgb*0.5; // Ambient Light
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
 
                 //TV float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
-				float3 diffuse = directDiffuse * _MainTex_var.rgb; //lerp(_Color.rgb,_MainTex_var.rgb,1);
+				float3 diffuse = directDiffuse * _MainTex_var.rgb ; //lerp(_Color.rgb,_MainTex_var.rgb,1);
 
 
 				//diffuse *= 4;

@@ -310,12 +310,15 @@ Shader "Shader Forge/NormalMaping" {
                 #endif
                 float Pi = 3.141592654;
                 float InvPi = 0.31830988618;
+
 ////// Specular:
                 float3 specularColor = _SpecGloss.rgb;
                 float specularMonochrome = dot(specularColor,float3(0.3,0.59,0.11));
+
                 float specPow = max( 2, _SpecGloss.a * 128 );
                 float normTerm = (specPow + 8.0 ) / (8.0 * Pi);
-                float3 directSpecular = (lightAccumulation.rgb * 2)*lightAccumulation.a*normTerm;
+                float3 directSpecular = (lightAccumulation.rgb * 2)*lightAccumulation.a * normTerm;
+
                 float3 indirectSpecular = (0 + (lightmap*marmoSpecular(viewReflectDirection)).rgb);
                 float3 specular = (directSpecular + indirectSpecular) * specularColor;
                 #ifndef LIGHTMAP_OFF

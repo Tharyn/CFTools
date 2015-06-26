@@ -71,6 +71,9 @@ public class CF_RoomLighting : MonoBehaviour {
                 Materials[i].SetFloat("_L1Intensity", L1mag);
                 Materials[i].SetFloat("_L2Intensity", L2mag);
 
+                Materials[i].SetVector("_L1Color", L1.color);
+                Materials[i].SetVector("_L2Color", L2.color);
+
                 Materials[i].SetVector("_L1Pos", L1.gameObject.transform.position);
                 Materials[i].SetVector("_L2Pos", L2.gameObject.transform.position);
             }

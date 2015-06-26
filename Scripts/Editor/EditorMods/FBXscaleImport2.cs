@@ -211,14 +211,14 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 if (assetPathStr.Contains("Spec")) {
                                     mat.SetTexture("_SpecMap", tempTex);
                                 }
-                                /*
+
                                 if (assetPathStr.Contains("AO")) {
-                                    mat.SetTexture("_AOMap", tempTex);
+                                    mat.SetTexture("_AoMap", tempTex);
                                 }
                                 if (assetPathStr.Contains("Norm")) {
                                     mat.SetTexture("_BumpMap", tempTex);
                                 }
-                                */
+
                                
                             }                        
                         }
