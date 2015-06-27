@@ -12,9 +12,9 @@ Shader "DeepLight/DL_LM_SS" {
         _SpecColor ("SpecColor", Color) = (0.2,0.2,0.2,1)
         _Shininess ("Shininess", Range(0, 1)) = 0.7
 
+		// DEEP LIGHT PARAMETERS
 		_RoomAmb ("RoomAmb", Color) = (0.0,0.0,0.0,1)
 
-		// L1 Additions
         _L1Pos ("L1Pos", Vector) = (0,0,0,0)
 		_L2Pos ("L2Pos", Vector) = (0,0,0,0)
 
@@ -124,10 +124,11 @@ Shader "DeepLight/DL_LM_SS" {
                 sampler2D unity_LightmapInd;
                 float4 unity_LightmapFade;
             #endif
-            //uniform float4 _Color;
+
+			// Used just for BEAST
             uniform float _Shininess;
 
-			// L1 Additions
+			// DEEP LIGHT PARAMETERS
 			uniform float4 _RoomAmb;
 			uniform float4 _L1Pos;
 			uniform float4 _L2Pos;
@@ -149,6 +150,7 @@ Shader "DeepLight/DL_LM_SS" {
 			uniform sampler2D _AoMap;
 			uniform float4 _AoMap_ST;
 
+			// START SKY SHOP
             #ifndef MARMO_LIGHTMAP_DEFINED
             #define MARMO_LIGHTMAP_DEFINED
             	#ifdef LIGHTMAP_OFF
@@ -267,6 +269,7 @@ Shader "DeepLight/DL_LM_SS" {
                 float2 texcoord0 : TEXCOORD0;
                 float2 texcoord1 : TEXCOORD1;
             };
+
             struct VertexOutput {
                 float4 pos : SV_POSITION;
                 float2 uv0 : TEXCOORD0;
@@ -282,6 +285,8 @@ Shader "DeepLight/DL_LM_SS" {
                     #endif
                 #endif
             };
+
+			// VERTEX SHADER
             VertexOutput vert (VertexInput v) {
                 VertexOutput o;
                 o.uv0 = v.texcoord0;
@@ -292,56 +297,73 @@ Shader "DeepLight/DL_LM_SS" {
                 o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
                 o.projPos = ComputeScreenPos (o.pos);
                 COMPUTE_EYEDEPTH(o.projPos.z);
-                #ifndef LIGHTMAP_OFF
+
+                #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
                     o.uvLM = v.texcoord1 * unity_LightmapST.xy + unity_LightmapST.zw;
                     #ifdef DIRLIGHTMAP_OFF
-                        o.lmapFadePos.xyz = (mul(_Object2World, v.vertex).xyz - unity_ShadowFadeCenterAndType.xyz) * unity_ShadowFadeCenterAndType.w;
-                        o.lmapFadePos.w = (-mul(UNITY_MATRIX_MV, v.vertex).z) * (1.0 - unity_ShadowFadeCenterAndType.w);
+                        o.lmapFadePos.xyz = ( mul(_Object2World, v.vertex).xyz - unity_ShadowFadeCenterAndType.xyz) * unity_ShadowFadeCenterAndType.w;
+                        o.lmapFadePos.w = ( -mul(UNITY_MATRIX_MV, v.vertex).z) * (1.0 - unity_ShadowFadeCenterAndType.w);
                     #endif
                 #endif
+
                 return o;
             }
+
+			// FRAGMENT SHADER
             fixed4 frag(VertexOutput i) : COLOR {
+
+				/////// ADDITIONAL MAPS
+				float4 _MainTex_var = tex2D(_MainTex, TRANSFORM_TEX(i.uv0, _MainTex) );
+				float4 _SpecMap_var = tex2D(_SpecMap, TRANSFORM_TEX(i.uv0, _SpecMap) );
+				float3 _BumpMap_var = UnpackNormal( tex2D(_BumpMap, TRANSFORM_TEX(i.uv0, _BumpMap) ) );
+				float3 _AoMap_var = tex2D(_AoMap, TRANSFORM_TEX(i.uv0, _AoMap) );
+
+				/////// Vectors:
+				float3 L1Direction = normalize( _L1Pos.xyz - i.posWorld.xyz);
+				float3 L2Direction = normalize( _L2Pos.xyz - i.posWorld.xyz);
+
+                float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.posWorld.xyz);
+
                 i.normalDir = normalize(i.normalDir);
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
-/////// Vectors:
-
-				float3 L1Direction = normalize(_L1Pos.xyz - i.posWorld.xyz);
-				float3 L2Direction = normalize(_L2Pos.xyz - i.posWorld.xyz);
-
-                float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-                float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(i.uv0, _BumpMap)));
+                
                 float3 normalLocal = _BumpMap_var.rgb;
-                float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
+                float3 normalDirection = normalize( mul( normalLocal, tangentTransform ) ); // Perturbed normals
                 float3 viewReflectDirection = reflect( -viewDirection, normalDirection );
 
-                #ifndef LIGHTMAP_OFF
+
+				//////???????
+                #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
                     float4 lmtex = tex2D(unity_Lightmap,i.uvLM);
                     #ifndef DIRLIGHTMAP_OFF
                         float3 lightmap = DecodeLightmap(lmtex);
-                        float3 scalePerBasisVector = DecodeLightmap(tex2D(unity_LightmapInd,i.uvLM));
+                        float3 scalePerBasisVector = DecodeLightmap( tex2D(unity_LightmapInd,i.uvLM) );
                         UNITY_DIRBASIS
-                        half3 normalInRnmBasis = saturate (mul (unity_DirBasis, normalLocal));
-                        lightmap *= dot (normalInRnmBasis, scalePerBasisVector);
+                        half3 normalInRnmBasis = saturate( mul(unity_DirBasis, normalLocal) );
+                        lightmap *= dot(normalInRnmBasis, scalePerBasisVector);
                     #else
                         float3 lightmap = DecodeLightmap(lmtex);
                     #endif
                 #endif
-////// Lighting:
-				float4 _SpecMap_var = tex2D(_SpecMap,TRANSFORM_TEX(i.uv0, _SpecMap));
-				float4 _AoMap_var = tex2D(_AoMap,TRANSFORM_TEX(i.uv0, _AoMap));
 
+
+				////// Lighting:
                 half4 lightAccumulation = tex2Dproj(_LightBuffer, UNITY_PROJ_COORD(i.projPos));
                 #if defined (SHADER_API_GLES) || defined (SHADER_API_GLES3)
                     lightAccumulation = max(lightAccumulation, half4(0.001));
                 #endif
+
+
                 #ifndef HDR_LIGHT_PREPASS_ON
                     lightAccumulation = -log2(lightAccumulation);
                 #endif
+
                 #if defined (SHADER_API_XBOX360) && defined (HDR_LIGHT_PREPASS_ON)
                     lightAccumulation.w = tex2Dproj (_LightSpecBuffer, UNITY_PROJ_COORD(i.projPos)).r;
                 #endif
-              #ifndef LIGHTMAP_OFF
+
+				////// LIGHTMAP LIGHTING
+				#ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
                     half3 lightmapAccumulation = half3(0,0,0);
                     #ifdef DIRLIGHTMAP_OFF
                         half lmFade = length (i.lmapFadePos) * unity_LightmapFade.z + unity_LightmapFade.w;
@@ -366,56 +388,62 @@ Shader "DeepLight/DL_LM_SS" {
                 float InvPi = 0.31830988618;
 
 ////// Specular:
-                float3 specularColor = _SpecMap_var.rgb;
-                float specularMonochrome = dot(specularColor,float3(0.3,0.59,0.11));
 
+                float specularMonochrome = dot(_SpecMap_var.rgb, float3(0.3,0.59,0.11));
+
+				// I THINK THIS IS PHONG ?????
                 float specPow = max( 2, _SpecMap_var.a * 128 ) ;
                 float normTerm = (specPow + 8.0 ) / (8.0 * Pi);
-                float3 directSpecular = (lightAccumulation.rgb * 2)*lightAccumulation.a * normTerm;
+                float3 directSpecular = (lightAccumulation.rgb * 2) * lightAccumulation.a * normTerm;
 
 				// THIS IS IMPORTANT
 				// is controles the light ratio
 				directSpecular *= .3;
 
-
-
-				//TV This is the line that the Light map is multiplied into the reflection
-                //float3 indirectSpecular = (0 + ((lightmap+lightmap)*marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _Shininess)).rgb);
+				// SKYSHOP REFLECTIONS
 				float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
 
 				// Where we control the reflection by the light intensity
 				float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
 				float3 L2pow =  _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
-				indirectSpecular *= L1pow + L2pow;
+				// THIS IS MULTIPLIED TIMES THE AMBIENT LEVEL SO REFLETIONS MATCH AMBIENT LIGHTING
+				indirectSpecular *= (L1pow + L2pow) + _RoomAmb;
 
-				//Filter the reflections with the light map
-				#ifndef LIGHTMAP_OFF
+				// Filter the reflections with the lightmap
+				#ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
 					indirectSpecular *= lightmapAccumulation.rgb ;
 				#endif
 
+				
 
-				indirectSpecular *=	_RoomAmb;//*2;
 
-                float3 specular = (directSpecular + indirectSpecular) * specularColor ;
-                #ifndef LIGHTMAP_OFF
+				// TOTAL SPECULAR
+                float3 specular = (directSpecular + indirectSpecular) * _SpecMap_var.rgb ;
+
+                #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
                     #ifndef DIRLIGHTMAP_OFF
                         specular += specColor;
                     #endif
                 #endif
 /////// Diffuse:
                 float3 indirectDiffuse = float3(0,0,0);
-                #ifndef LIGHTMAP_OFF
+
+                #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
                     float3 directDiffuse = float3(0,0,0);
-                #else
+                #else // LIGHTMAPPING IS OFF
                     float3 directDiffuse = lightAccumulation.rgb * 0.5;
                 #endif
-                #ifndef LIGHTMAP_OFF
-                    //TV directDiffuse += lightAccumulation.rgb + lightmapAccumulation.rgb;
-					//float clampNode = clamp((1.0 - (distance(_L1Pos.rgb,i.posWorld.rgb)/_L1Falloff)),0,1);
 
-					// GI BASED ON DISTANCE
-					//directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
+				
+                #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
+
+					 lightAccumulation.rgb + lightmapAccumulation.rgb;
+
+					/* GI BASED ON DISTANCE (Removed in preference to location global GI)
+					float clampNode = clamp((1.0 - (distance(_L1Pos.rgb,i.posWorld.rgb)/_L1Falloff)),0,1);
+					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
+					*/
 
 					_AoMap_var *= .5;
 					_AoMap_var += .5;
@@ -424,14 +452,9 @@ Shader "DeepLight/DL_LM_SS" {
 					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb ) + ( lightmapAccumulation.rgb * _RoomAmb * _AoMap_var ) ;
 			
                 #endif
-                //TV indirectDiffuse += unity_Ambient.rgb*0.5; // Ambient Light
-                float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
 
-                //TV float3 diffuse = (directDiffuse + indirectDiffuse) * lerp(_Color.rgb,_MainTex_var.rgb,0.0);
-				float3 diffuse = directDiffuse * _MainTex_var.rgb ; //lerp(_Color.rgb,_MainTex_var.rgb,1);
+				float3 diffuse = directDiffuse * _MainTex_var.rgb ;
 
-
-				//diffuse *= 4;
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
 
