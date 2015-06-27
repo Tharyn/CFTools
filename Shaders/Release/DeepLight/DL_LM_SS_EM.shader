@@ -1,13 +1,14 @@
 
 
 
-Shader "DeepLight/Specular/DL_LM_SS" {
+Shader "DeepLight/Specular/DL_LM_SS_EM" {
     Properties {
         _MainTex ("MainTex", 2D) = "white" {}
 		_SpecMap ("SpecMap", 2D) = "white" {}
 		_BumpMap ("BumpMap", 2D) = "bump" {}
 
 		_AoMap ("AoMap", 2D) = "white" {}
+		_EmMap ("EmMap", 2D) = "white" {}
 
         _SpecColor ("SpecColor", Color) = (0.2,0.2,0.2,1)
         _Shininess ("Shininess", Range(0, 1)) = 0.7
@@ -149,6 +150,8 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 			uniform float4 _BumpMap_ST;
 			uniform sampler2D _AoMap;
 			uniform float4 _AoMap_ST;
+			uniform sampler2D _EmMap;
+			uniform float4 _EmMap_ST;
 
 			// START SKY SHOP
             #ifndef MARMO_LIGHTMAP_DEFINED
@@ -317,6 +320,7 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 				float4 _SpecMap_var = tex2D(_SpecMap, TRANSFORM_TEX(i.uv0, _SpecMap) );
 				float3 _BumpMap_var = UnpackNormal( tex2D(_BumpMap, TRANSFORM_TEX(i.uv0, _BumpMap) ) );
 				float3 _AoMap_var = tex2D(_AoMap, TRANSFORM_TEX(i.uv0, _AoMap) );
+				float3 _EmMap_var = tex2D(_EmMap, TRANSFORM_TEX(i.uv0, _EmMap) );
 
 				/////// Vectors:
 				float3 L1Direction = normalize( _L1Pos.xyz - i.posWorld.xyz);
@@ -330,7 +334,7 @@ Shader "DeepLight/Specular/DL_LM_SS" {
                 float3 normalLocal = _BumpMap_var.rgb;
                 float3 normalDirection = normalize( mul( normalLocal, tangentTransform ) ); // Perturbed normals
                 float3 viewReflectDirection = reflect( -viewDirection, normalDirection );
-
+				float fresnel = dot(viewDirection, normalDirection);
 
 				//////???????
                 #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
@@ -458,8 +462,9 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
 
+				float3 emissive = _EmMap_var.rgb * fresnel * fresnel;
 /// Final Color:
-                float3 finalColor = diffuse + specular;
+                float3 finalColor = diffuse + specular + emissive;
                 return fixed4(finalColor,1);
             }
             ENDCG

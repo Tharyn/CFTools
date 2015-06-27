@@ -7,17 +7,17 @@ using mset;
 public class CF_RoomLighting : MonoBehaviour {
 
 
-
     public GameObject volume;
     public Bounds bounds;
     public Color GIColor;
     public float GIAmt;
-    public Shader shader;
+    public Shader shaderLM;
+    public Shader shaderEM;
     public Sky sky;
-    public List<Material> Materials = new List<Material>();
     public Light L1;
     public Light L2;
-    //public float L1rangeM = 1;
+
+    public List<Material> Materials = new List<Material>();
 
     void CollectMaterials() {
         Materials = new List<Material>();
@@ -29,11 +29,11 @@ public class CF_RoomLighting : MonoBehaviour {
                 
                 
                 for (int j = 0; j < mRenderers[i].sharedMaterials.Length; j++ ) {
-                    if (mRenderers[i].sharedMaterials[j].shader.name == shader.name)
+                    string name = mRenderers[i].sharedMaterials[j].shader.name;
+                    if (name == shaderLM.name || name == shaderEM.name)
                         Materials.Add(mRenderers[i].sharedMaterials[j]);
                 }
             }
-
         }
     }
 
@@ -88,7 +88,6 @@ public class CF_RoomLighting : MonoBehaviour {
         }
 	}
 
-    // Update is called once per frame
     void FixedUpdate() {
         if (Application.isPlaying) {
             SetMaterialProperties();
