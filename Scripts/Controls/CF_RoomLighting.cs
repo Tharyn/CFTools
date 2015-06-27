@@ -45,6 +45,7 @@ public class CF_RoomLighting : MonoBehaviour {
 
 	}
 
+
     void SetMaterialProperties() {
         if (L1 != null && L2 != null) {
 

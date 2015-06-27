@@ -395,7 +395,7 @@ Shader "DeepLight/DL_LM_SS" {
 				#endif
 
 
-				indirectSpecular +=	_RoomAmb*.02;
+				indirectSpecular *=	_RoomAmb;//*2;
 
                 float3 specular = (directSpecular + indirectSpecular) * specularColor ;
                 #ifndef LIGHTMAP_OFF

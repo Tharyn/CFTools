@@ -9,7 +9,7 @@ class RealTimeAssetUpdate {
     static void updateDataBase() {
         if (!Application.isPlaying) {
             timer += 1;
-            if (timer > 500) {
+            if (timer > 100) {
                 timer = 0;
                 //Debug.Log("Updateing");
                 AssetDatabase.Refresh();
@@ -20,6 +20,6 @@ class RealTimeAssetUpdate {
 
     static RealTimeAssetUpdate() {
         Debug.Log("IT LOADED");
-        EditorApplication.update += updateDataBase;
+        //EditorApplication.update += updateDataBase;
     }
 }
