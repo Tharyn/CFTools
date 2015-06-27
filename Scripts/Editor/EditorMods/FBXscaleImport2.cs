@@ -170,7 +170,7 @@ public class FBXscaleImport2 : AssetPostprocessor
                     int rIndex = Keys.FindIndex(s => s.Contains("Red"));
                     int gIndex = Keys.FindIndex(s => s.Contains("Green"));
                     int bIndex = Keys.FindIndex(s => s.Contains("Blue"));
-                    int aIndex = Keys.FindIndex(s => s.Contains("Alpha"));
+                    //int aIndex = Keys.FindIndex(s => s.Contains("Alpha"));
                     int shadowIndex = Keys.FindIndex(s => s.Contains("Shadows"));
 
                     int sizeIndex = Keys.FindIndex(s => s.Contains("Size"));

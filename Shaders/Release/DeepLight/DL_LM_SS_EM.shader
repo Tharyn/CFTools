@@ -24,7 +24,8 @@ Shader "DeepLight/Specular/DL_LM_SS_EM" {
 		_L2Intensity ("L2Intensity ", Float ) = 1
 		_L2Color ("L2Color", Color) = (0.2,0.2,0.2,1)
 
-        _L1Falloff ("L1Falloff", Float ) = 20
+		_E1Intensity ("E1Intensity ", Float ) = 1
+		_E1Color ("E1Color", Color) = (0.2,0.2,0.2,1)
 		
     }
     SubShader {
@@ -140,7 +141,8 @@ Shader "DeepLight/Specular/DL_LM_SS_EM" {
 			uniform float _L2Intensity;
 			uniform float4 _L2Color;
 
-			uniform float _L1Falloff;
+			uniform float _E1Intensity;
+			uniform float4 _E1Color;
 
             uniform sampler2D _MainTex; 
 			uniform float4 _MainTex_ST;
@@ -462,7 +464,7 @@ Shader "DeepLight/Specular/DL_LM_SS_EM" {
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
 
-				float3 emissive = _EmMap_var.rgb * fresnel * fresnel;
+				float3 emissive = _EmMap_var.rgb * fresnel * fresnel * _E1Intensity * _E1Color;
 /// Final Color:
                 float3 finalColor = diffuse + specular + emissive;
                 return fixed4(finalColor,1);

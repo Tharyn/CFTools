@@ -13,9 +13,12 @@ public class CF_RoomLighting : MonoBehaviour {
     public float GIAmt;
     public Shader shaderLM;
     public Shader shaderEM;
-    public Sky sky;
+
     public Light L1;
     public Light L2;
+
+    // ADD MY OWN SKY MANAGER !!!
+    public Sky sky;
 
     public List<Material> Materials = new List<Material>();
 
@@ -24,10 +27,7 @@ public class CF_RoomLighting : MonoBehaviour {
         MeshRenderer[] mRenderers = FindObjectsOfType(typeof(MeshRenderer)) as MeshRenderer[];
 
         for (int i = 0; i < mRenderers.Length; i++) {
-
             if ( bounds.Contains(mRenderers[i].gameObject.transform.position) ) {
-                
-                
                 for (int j = 0; j < mRenderers[i].sharedMaterials.Length; j++ ) {
                     string name = mRenderers[i].sharedMaterials[j].shader.name;
                     if (name == shaderLM.name || name == shaderEM.name)
