@@ -196,8 +196,8 @@ public class FBXscaleImport2 : AssetPostprocessor
                             Debug.Log(matName);
 
                             // SHADER ASSIGNMENT
-                            mat.shader = Shader.Find("DeepLight/DL_LM_SS");
-
+                            mat.shader = Shader.Find("DeepLight/Specular/DL_LM_SS");
+                            Debug.Log(mat.shader);
                             string[] tempArray = AssetDatabase.FindAssets(matName + " t:texture2D");
 
                             for (int t = 0; t < tempArray.Length; t++) {

@@ -1,6 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using mset;
 
 [InitializeOnLoad]
 class MyHierarchyIcon
@@ -151,7 +152,7 @@ class MyHierarchyIcon
                         hasChild.Add(true);
                 }
                 // Example: mark all lights
-                if (g.name.IndexOf(".Target") > -1) {
+                if (g.name.IndexOf("Target") > -1) {
                     markedObjects.Add(g.GetInstanceID());
                     iconToUse.Add(9);
                     depth.Add(FindDepth(g, 0));

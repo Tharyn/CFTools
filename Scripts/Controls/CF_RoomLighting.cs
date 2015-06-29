@@ -7,10 +7,12 @@ using mset;
 public class CF_RoomLighting : MonoBehaviour {
 
 
+    public float GI_Amt;
+    public Color GI_Tint;
+    public Color ReflectionGI = Color.white;
+
     public GameObject volume;
     public Bounds bounds;
-    public Color GIColor;
-    public float GIAmt;
     public Shader shaderLM;
     public Shader shaderEM;
 
@@ -64,7 +66,8 @@ public class CF_RoomLighting : MonoBehaviour {
             else
                 L2mag = 0;
 
-            Color giTotal = GIColor * GIAmt * (L1mag + L2mag);
+            Color giTotal = GI_Tint * GI_Amt * (L1mag + L2mag);
+
 
             for (int i = 0; i < Materials.Count; i++) {
                 Materials[i].SetVector("_RoomAmb", giTotal);
@@ -79,6 +82,10 @@ public class CF_RoomLighting : MonoBehaviour {
                 Materials[i].SetVector("_L2Pos", L2.gameObject.transform.position);
             }
         }
+    }
+
+    public bool SetReflectionGI() {
+        return true;
     }
 
 	// Update is called once per frame

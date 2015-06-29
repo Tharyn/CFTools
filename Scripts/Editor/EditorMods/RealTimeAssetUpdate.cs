@@ -6,20 +6,26 @@ using System.Collections;
 class RealTimeAssetUpdate {
     static int timer = 0;
 
+
     static void updateDataBase() {
         if (!Application.isPlaying) {
             timer += 1;
-            if (timer > 100) {
+            if (timer > 50) {
                 timer = 0;
-                //Debug.Log("Updateing");
                 AssetDatabase.Refresh();
+                Debug.Log("test");
             }
-
         }
     }
 
     static RealTimeAssetUpdate() {
         Debug.Log("IT LOADED");
+
         //EditorApplication.update += updateDataBase;
+
+    }
+
+    public void OnGUI() {
+        Debug.Log(Event.current);
     }
 }
