@@ -9,11 +9,12 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 
 		_AoMap ("AoMap", 2D) = "white" {}
 
-        _SpecColor ("SpecColor", Color) = (0.2,0.2,0.2,1)
-        _Shininess ("Shininess", Range(0, 1)) = 0.7
+        _SpecColor ("SpecColor (4LM)", Color) = (0.2,0.2,0.2,1)
+        _Shininess ("Shininess (4LM)", Range(0, 1)) = 0.7
 
 		// DEEP LIGHT PARAMETERS
 		_RoomAmb ("RoomAmb", Color) = (0.0,0.0,0.0,1)
+		_RefAmb ("ReflectionAmb", Color) = (0.0,0.0,0.0,1)
 
         _L1Pos ("L1Pos", Vector) = (0,0,0,0)
 		_L2Pos ("L2Pos", Vector) = (0,0,0,0)
@@ -130,6 +131,8 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 
 			// DEEP LIGHT PARAMETERS
 			uniform float4 _RoomAmb;
+			uniform float4 _RefAmb;
+
 			uniform float4 _L1Pos;
 			uniform float4 _L2Pos;
 
@@ -413,7 +416,11 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 				float3 L2pow =  _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
 				// THIS IS MULTIPLIED TIMES THE AMBIENT LEVEL SO REFLETIONS MATCH AMBIENT LIGHTING
-				indirectSpecular *= (L1pow + L2pow) + _RoomAmb;
+				indirectSpecular *= (L1pow + L2pow) + _RoomAmb ;
+
+				#ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
+					indirectSpecular += lightmapAccumulation.rgb * _RefAmb;
+				#endif
 
 				// Filter the reflections with the lightmap
 				#ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
@@ -455,7 +462,7 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 
 					// BASED IN SINGLE AMBIENT VALUE
 					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb ) + ( lightmapAccumulation.rgb * _RoomAmb * _AoMap_var ) ;
-			
+					directDiffuse += lightmapAccumulation.rgb * _RefAmb;
                 #endif
 
 				float3 diffuse = directDiffuse * _MainTex_var.rgb ;

@@ -6,9 +6,10 @@ using mset;
 [ExecuteInEditMode]
 public class CF_RoomLighting : MonoBehaviour {
 
-
+    public bool reflectionRendering = false;
     public float GI_Amt;
     public Color GI_Tint;
+    public Color Ambient;
     public Color ReflectionGI = Color.white;
 
     public GameObject volume;
@@ -44,7 +45,6 @@ public class CF_RoomLighting : MonoBehaviour {
        
         bounds = volume.renderer.bounds;
         CollectMaterials();
-
 	}
 
 
@@ -80,16 +80,34 @@ public class CF_RoomLighting : MonoBehaviour {
 
                 Materials[i].SetVector("_L1Pos", L1.gameObject.transform.position);
                 Materials[i].SetVector("_L2Pos", L2.gameObject.transform.position);
+
+                if (reflectionRendering)
+                    Materials[i].SetVector("_RefAmb", ReflectionGI);
+                else
+                    Materials[i].SetVector("_RefAmb", Ambient);
+                    
             }
+          
         }
     }
 
-    public bool SetReflectionGI() {
+    // If not to color it is restored to black
+    public bool SetReflectionGI(bool toColor) {
+        if (toColor)
+            for (int i = 0; i < Materials.Count; i++) {
+                Materials[i].SetVector("_RefAmb", ReflectionGI);
+            }
+        else
+            for (int i = 0; i < Materials.Count; i++) {
+                Materials[i].SetVector("_RefAmb", new Color (0,0,0,1));
+            }
+
         return true;
     }
 
 	// Update is called once per frame
 	void Update () {
+
         if (!Application.isPlaying) {
             SetMaterialProperties();
         }

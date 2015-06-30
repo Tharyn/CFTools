@@ -11,6 +11,7 @@ public class CF_Bridge : EditorWindow {
 
     public static bool run = false;
     public static EditorWindow window;
+    public Sky sky;
 
     [MenuItem("CF/THE BRIDGE")]
     public static void Launch() {
@@ -40,7 +41,7 @@ public class CF_Bridge : EditorWindow {
     }
 
 
-    static public void SetLights(int type, bool renderProbe, Sky[] skys) {
+    static public void SetLights(int type) {
 
         CF_DualLightProps[] DualLightProps = FindObjectsOfType(typeof(CF_DualLightProps)) as CF_DualLightProps[];
 
@@ -76,6 +77,7 @@ public class CF_Bridge : EditorWindow {
                     break;
                 }
                 case 2: { // REFLECTIOPN PROBE
+
                     Debug.Log("Setting Reflection Lights");
                     lightmapProp.intValue = 0;
                     serialObj.ApplyModifiedProperties();
@@ -88,10 +90,7 @@ public class CF_Bridge : EditorWindow {
                     break;
                 }
             }
-
-
         }
-
     }
 	
 
@@ -100,45 +99,36 @@ public class CF_Bridge : EditorWindow {
         // Store Current Realtime Lighting
         UpdateRtProps();
 
-        SetLights(1, false, new Sky[1]);
+        SetLights(1);
 
         Lightmapping.BakeAsync();
 
-        SetLights(0, false, new Sky[1]);
-
-   
+        SetLights(0);
     }
-
-    /*
-    public static IEnumerator WaitForRender(CF_Bridge bridge, Sky[] skys) {
-        // A->B     Slerp
-        // A<->B    PingPong
-
-        while (Probeshop.probing == true) {
-            yield return null;
-        }
-        
-    }
-    */
 
 
     void RenderSky() {
-        
+
+        //CF_RoomLighting.SetReflectionGI(true);
+        CF_RoomLighting[] roomLighting = FindObjectsOfType(typeof(CF_RoomLighting)) as CF_RoomLighting[];
+
         if (Selection.gameObjects.Length > 0) {
             GameObject go = Selection.gameObjects[0];
-            Sky sky = go.GetComponent<Sky>();
+            sky = go.GetComponent<Sky>();
 
-            if (sky != null) {
+            if (sky != null && sky) {
                 Sky[] skys = new Sky[1];
                 skys[0] = sky;
                 UpdateRtProps();
-                
-                
+
+
+                //SkyManager.ProbeSkies(null, skys, false, false, null);
+
                 Probeshop.ProbeSkies(null, skys, false, false, null);
-                
-                
+
             } else
                 Debug.Log("Please select a Sky");
+            
         } else 
             Debug.Log("Please select a Sky");
         
