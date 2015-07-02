@@ -1,10 +1,13 @@
 // Shader created with Shader Forge v1.02 
 // Shader Forge (c) Neat Corporation / Joachim Holmer - http://www.acegikmo.com/shaderforge/
 // Note: Manually altering this data may prevent you from opening it in Shader Forge
-/*SF_DATA;ver:1.02;sub:START;pass:START;ps:flbk:,lico:1,lgpr:1,nrmq:1,limd:1,uamb:True,mssp:True,lmpd:False,lprd:False,rprd:False,enco:False,frtr:True,vitr:True,dbil:False,rmgx:True,rpth:0,hqsc:True,hqlp:False,tesm:0,blpr:0,bsrc:0,bdst:1,culm:0,dpts:2,wrdp:True,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,ofsf:0,ofsu:0,f2p0:False;n:type:ShaderForge.SFN_Final,id:19,x:33171,y:32687,varname:node_19,prsc:2|diff-8117-OUT;n:type:ShaderForge.SFN_Vector2,id:1752,x:32570,y:32847,varname:node_1752,prsc:2,v1:0,v2:1;n:type:ShaderForge.SFN_RemapRange,id:8117,x:32769,y:32847,varname:node_8117,prsc:2,frmn:0,frmx:1,tomn:0.5,tomx:1|IN-1752-OUT;pass:END;sub:END;*/
+/*SF_DATA;ver:1.02;sub:START;pass:START;ps:flbk:,lico:1,lgpr:1,nrmq:1,limd:1,uamb:True,mssp:True,lmpd:False,lprd:False,rprd:False,enco:False,frtr:True,vitr:True,dbil:False,rmgx:True,rpth:0,hqsc:True,hqlp:False,tesm:0,blpr:0,bsrc:0,bdst:1,culm:0,dpts:2,wrdp:True,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,ofsf:0,ofsu:0,f2p0:False;n:type:ShaderForge.SFN_Final,id:7615,x:34411,y:32741,varname:node_7615,prsc:2|diff-549-RGB;n:type:ShaderForge.SFN_Tex2d,id:549,x:33904,y:32825,ptovrint:False,ptlb:MainTex,ptin:_MainTex,varname:node_549,prsc:2,ntxv:0,isnm:False|UVIN-2775-OUT;n:type:ShaderForge.SFN_ValueProperty,id:9093,x:33417,y:32692,ptovrint:False,ptlb:x,ptin:_x,varname:node_9093,prsc:2,glob:False,v1:0;n:type:ShaderForge.SFN_ValueProperty,id:4120,x:33417,y:32792,ptovrint:False,ptlb:y,ptin:_y,varname:node_4120,prsc:2,glob:False,v1:0;n:type:ShaderForge.SFN_Append,id:2775,x:33614,y:32726,varname:node_2775,prsc:2|A-9093-OUT,B-4120-OUT;proporder:549-9093-4120;pass:END;sub:END;*/
 
-Shader "Shader Forge/RemapTest" {
+Shader "Shader Forge/UVlookupo" {
     Properties {
+        _MainTex ("MainTex", 2D) = "white" {}
+        _x ("x", Float ) = 0
+        _y ("y", Float ) = 0
     }
     SubShader {
         Tags {
@@ -27,6 +30,9 @@ Shader "Shader Forge/RemapTest" {
             #pragma exclude_renderers xbox360 ps3 flash d3d11_9x 
             #pragma target 3.0
             uniform float4 _LightColor0;
+            uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform float _x;
+            uniform float _y;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -60,7 +66,9 @@ Shader "Shader Forge/RemapTest" {
                 float3 indirectDiffuse = float3(0,0,0);
                 float3 directDiffuse = max( 0.0, NdotL) * attenColor;
                 indirectDiffuse += UNITY_LIGHTMODEL_AMBIENT.rgb; // Ambient Light
-                float3 diffuse = (directDiffuse + indirectDiffuse) * float3((float2(0,1)*0.5+0.5),0.0);
+                float2 node_2775 = float2(_x,_y);
+                float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(node_2775, _MainTex));
+                float3 diffuse = (directDiffuse + indirectDiffuse) * _MainTex_var.rgb;
 /// Final Color:
                 float3 finalColor = diffuse;
                 return fixed4(finalColor,1);
@@ -86,6 +94,9 @@ Shader "Shader Forge/RemapTest" {
             #pragma exclude_renderers xbox360 ps3 flash d3d11_9x 
             #pragma target 3.0
             uniform float4 _LightColor0;
+            uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform float _x;
+            uniform float _y;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -117,7 +128,9 @@ Shader "Shader Forge/RemapTest" {
 /////// Diffuse:
                 float NdotL = max(0.0,dot( normalDirection, lightDirection ));
                 float3 directDiffuse = max( 0.0, NdotL) * attenColor;
-                float3 diffuse = directDiffuse * float3((float2(0,1)*0.5+0.5),0.0);
+                float2 node_2775 = float2(_x,_y);
+                float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(node_2775, _MainTex));
+                float3 diffuse = directDiffuse * _MainTex_var.rgb;
 /// Final Color:
                 float3 finalColor = diffuse;
                 return fixed4(finalColor * 1,0);

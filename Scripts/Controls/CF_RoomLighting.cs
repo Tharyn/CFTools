@@ -9,13 +9,14 @@ public class CF_RoomLighting : MonoBehaviour {
     public bool reflectionRendering = false;
     public float GI_Amt;
     public Color GI_Tint;
-    public Color Ambient;
+    public Color Ref_Ambient;
     public Color ReflectionGI = Color.white;
 
     public GameObject volume;
     public Bounds bounds;
     public Shader shaderLM;
     public Shader shaderEM;
+    public Shader shaderPX;
 
     public Light L1;
     public Light L2;
@@ -33,7 +34,7 @@ public class CF_RoomLighting : MonoBehaviour {
             if ( bounds.Contains(mRenderers[i].gameObject.transform.position) ) {
                 for (int j = 0; j < mRenderers[i].sharedMaterials.Length; j++ ) {
                     string name = mRenderers[i].sharedMaterials[j].shader.name;
-                    if (name == shaderLM.name || name == shaderEM.name)
+                    if (name == shaderLM.name || name == shaderEM.name || name == shaderPX.name)
                         Materials.Add(mRenderers[i].sharedMaterials[j]);
                 }
             }
@@ -84,7 +85,7 @@ public class CF_RoomLighting : MonoBehaviour {
                 if (reflectionRendering)
                     Materials[i].SetVector("_RefAmb", ReflectionGI);
                 else
-                    Materials[i].SetVector("_RefAmb", Ambient);
+                    Materials[i].SetVector("_RefAmb", Ref_Ambient);
                     
             }
           
