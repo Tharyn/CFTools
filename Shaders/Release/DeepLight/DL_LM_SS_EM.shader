@@ -89,13 +89,15 @@ Shader "DeepLight/Specular/DL_LM_SS_EM" {
 				uniform float4 _E1Color;
 				uniform sampler2D _E1Map; uniform float4 _E1Map_ST;
 
-				#include "SkyShop.cginc"
+				#include "SkyShopReflection.cginc"
 			
 				#include "PrepassFinalB.cginc"
 
 				#include "PrepassFinalNorm.cginc"
 
 				#include "PrepassFinalC.cginc"
+
+				#include "PrepassFinalD_LM.cginc"
 
 				// EMISSION SPECIFIC
 				float3 _E1Map_var = tex2D(_E1Map, TRANSFORM_TEX(i.uv0, _E1Map) );

@@ -18,6 +18,8 @@ public class CF_RoomLighting : MonoBehaviour {
     public Shader shaderEM;
     public Shader shaderPX;
 
+    public Shader shaderSS;
+
     public Light L1;
     public Light L2;
 
@@ -34,7 +36,7 @@ public class CF_RoomLighting : MonoBehaviour {
             if ( bounds.Contains(mRenderers[i].gameObject.transform.position) ) {
                 for (int j = 0; j < mRenderers[i].sharedMaterials.Length; j++ ) {
                     string name = mRenderers[i].sharedMaterials[j].shader.name;
-                    if (name == shaderLM.name || name == shaderEM.name || name == shaderPX.name)
+                    if (name == shaderLM.name || name == shaderEM.name || name == shaderPX.name || name == shaderSS.name)
                         Materials.Add(mRenderers[i].sharedMaterials[j]);
                 }
             }

@@ -87,13 +87,15 @@ Shader "DeepLight/Specular/DL_LM_SS_PX" {
 				// PARALLAX SPECIFIC
 				uniform float _ParalaxAmt;
 
-				#include "SkyShop.cginc"
+				#include "SkyShopReflection.cginc"
             
 				#include "PrepassFinalB.cginc"
 
 				#include "PrepassFinalParallax.cginc"
 
 				#include "PrepassFinalC.cginc"
+
+				#include "PrepassFinalD_LM.cginc"
 
 				/// Final Color:
                 float3 finalColor = diffuse + specular;

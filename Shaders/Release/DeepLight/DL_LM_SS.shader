@@ -86,7 +86,8 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 
 				#include "PrepassFinalA.cginc"
 
-				#include "SkyShop.cginc"
+				// SKYSHOP
+				#include "SkyShopReflection.cginc"
 
 				#include "PrepassFinalB.cginc"
 
@@ -94,6 +95,7 @@ Shader "DeepLight/Specular/DL_LM_SS" {
 
 				#include "PrepassFinalC.cginc"
 
+				#include "PrepassFinalD_LM.cginc"
 		/////// Final Color:
                 float3 finalColor = diffuse + specular;
                 return fixed4( finalColor, 1 );
