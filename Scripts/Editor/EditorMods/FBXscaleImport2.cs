@@ -13,6 +13,8 @@ public class FBXscaleImport2 : AssetPostprocessor
     if (index > -1)
         Debug.Log(GoChildren[i].name);
     */
+    //public static bool enabled = false;
+
 
     public static List<string> texIDs;
     public static List<string> texNames;
@@ -32,11 +34,11 @@ public class FBXscaleImport2 : AssetPostprocessor
         }
 
         // Set static object parameters
-        if (assetPath.Contains("(Sets)"))
+        //if (assetPath.Contains("(Sets)"))
         {
-            ModelImporter importer = assetImporter as ModelImporter;
-            importer.generateSecondaryUV = true;
-            importer.secondaryUVPackMargin = 8;
+            //ModelImporter importer = assetImporter as ModelImporter;
+            //importer.generateSecondaryUV = true;
+            //importer.secondaryUVPackMargin = 8;
         } 
 
     }
@@ -132,7 +134,7 @@ public class FBXscaleImport2 : AssetPostprocessor
     // FBXscaleImport2 importer 2.0
     void OnPostprocessModel(GameObject go) {
 
-        if ( assetPath.Contains("(Sets)")) {
+        if (assetPath.Contains("(Sets)") || assetPath.Contains("(Demo)")) {
 
 
             // Get all children
@@ -196,7 +198,12 @@ public class FBXscaleImport2 : AssetPostprocessor
                             Debug.Log(matName);
 
                             // SHADER ASSIGNMENT
-                            mat.shader = Shader.Find("DeepLight/Specular/DL_LM_SS");
+                            if (mat.name.Contains("DL_LM_SS")) {
+                                mat.shader = Shader.Find("DeepLight/Specular/DL_LM_SS");
+                            } else {
+                                mat.shader = Shader.Find("DeepLight/BasicShader");
+                            }
+
                             Debug.Log(mat.shader);
                             string[] tempArray = AssetDatabase.FindAssets(matName + " t:texture2D");
 
@@ -348,11 +355,13 @@ public class FBXscaleImport2 : AssetPostprocessor
 
                                     if (farIndex > -1)
                                         cam.farClipPlane = Convert.ToSingle(Values[farIndex]);
+
+                                    goc.AddComponent<FXAA>();
+                                    //goc.AddComponent<AntialiasingAsPostEffect>();
                                     break;
                             }
 
                             case "Null": {
-
                                     break;
                             }
 

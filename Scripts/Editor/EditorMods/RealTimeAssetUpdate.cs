@@ -10,7 +10,7 @@ class RealTimeAssetUpdate {
     static void updateDataBase() {
         if (!Application.isPlaying) {
             timer += 1;
-            if (timer > 50) {
+            if (timer > 1000) {
                 timer = 0;
                 AssetDatabase.Refresh();
                 Debug.Log("test");

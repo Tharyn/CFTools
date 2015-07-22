@@ -41,6 +41,7 @@ v2f vert (appdata v)
 
 sampler2D _CameraNormalsTexture;
 sampler2D _CameraDepthTexture;
+sampler2D _GGXlut;
 float4 _LightDir;
 float4 _LightPos;
 float4 _LightColor;
@@ -210,16 +211,80 @@ half4 CalculateLight (v2f i)
 		#endif
 	#endif
 	
-	half diff = max (0, dot (lightDir, normal));
-	half3 h = normalize (lightDir - normalize(wpos-_WorldSpaceCameraPos));
-	
 
-	// SPECULAR CALCULATION
-	// h =  half normal
-	// nspec.a = spec strength
-	float spec = pow (max (0, dot(h,normal)), nspec.a*128.0);
-	spec *= saturate(atten);
+	 
+
+	half3 h = normalize (lightDir - normalize(wpos-_WorldSpaceCameraPos));
+
 	
+	half dotNH = saturate(dot(normal,h));
+
+	
+	half dotNL = saturate( dot (lightDir, normal));
+
+	// This msx fuinction maxes sure that the roughness can not get below .1
+	// This prevents complete loss of highlight
+	float fixRough = max((1-nspec.a), .08);
+
+
+	float alpha = (fixRough)*(fixRough);
+	float dotLH = saturate(dot(lightDir,h));
+	half diff = max (0, dotNL);	
+
+
+
+	// D
+	
+	float F0 = .1;
+	float alphaSqr = alpha * alpha;
+	float pi = 3.14159;
+	float denom = dotNH * dotNH *(alphaSqr - 1.0) + 1.0;
+	float D = alphaSqr/(pi * denom * denom);
+	
+	/*
+	float F0 = .05;
+	float2 uvD = float2(dotNH, 1-(nspec.a));
+	float4 D_helper = (tex2D (_GGXlut, uvD));
+	float D = D_helper.r *.01;
+	*/
+	
+	// F
+	float dotLH5 = pow(1.0-dotLH, 5);
+	float F = F0 + (1.0- F0) * (dotLH5);
+
+	// V
+	float k = alpha / 2.0;
+	float k2 = k*k;
+	float invK2 = 1.0 - k2;
+	float vis = rcp(dotLH * dotLH * invK2 + k2);
+
+	// The max spec value prevent the intensity from exceeding what a single pixel cna handle
+	float maxSpec = 5;
+
+	// GGX
+	float spec = min(dotNL * D * F * vis, maxSpec);
+	spec *= saturate(atten);
+
+
+	 
+	/* LOOK UP TABE FOR GGX
+	float2 uvD = half2(dotNH, 1-(nspec.a));
+	float4 D_helper = (tex2D (_GGXlut, uvD));
+	float D;
+
+	float2 uvFV = half2(dotLH, 1-(nspec.a));
+	float4 FV_helper = (tex2D (_GGXlut, uvFV)).gb;
+
+	float FV = 1*FV_helper.x + (1.0f-1)*FV_helper.y;
+	float spec =  dotNL * D * FV;
+	*/
+
+	// Blinn-Phong
+	//float spec = pow (max (0, dotNH), nspec.a*128);
+	//spec *= saturate(atten);
+
+
+
 	half4 res;
 	res.xyz = _LightColor.rgb * (diff * atten);
 	res.w = spec * Luminance (_LightColor.rgb);

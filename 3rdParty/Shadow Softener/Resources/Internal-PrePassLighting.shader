@@ -4,6 +4,7 @@ Properties {
 	_LightTexture0 ("", any) = "" {}
 	_LightTextureB0 ("", 2D) = "" {}
 	_ShadowMapTexture ("", any) = "" {}
+	_GGXlut ("GGXlut", 2D) = "" {}
 }
 SubShader {
 

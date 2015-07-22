@@ -7,9 +7,13 @@ public class CF_Bridge : EditorWindow {
 
     int timer = 0;
     private bool Active = false;
-    string text = "Disabled";
+    private bool Importer = false;
+    string text = "Sync Disabled";
+    string impText = "Importer Disabled";
 
     public static bool run = false;
+    public static bool importer = false;
+
     public static EditorWindow window;
     public Sky sky;
 
@@ -122,8 +126,6 @@ public class CF_Bridge : EditorWindow {
                 UpdateRtProps();
 
 
-                //SkyManager.ProbeSkies(null, skys, false, false, null);
-
                 Probeshop.ProbeSkies(null, skys, false, false, null);
 
             } else
@@ -135,23 +137,31 @@ public class CF_Bridge : EditorWindow {
     }
 
     public void OnGUI() {
-        if (Active = GUI.Toggle(new Rect(10, 10, 100, 30), Active, text))
-            text = "ACTIVE";
+        if (Active = GUI.Toggle(new Rect(10, 10, 140, 30), Active, text))
+            text = "Sync ACTIVE";
         else
-            text = "Disabled";
-
-        if (GUI.Button(new Rect(10, 30, 160, 20), "Bake Lightmaps")) {
+            text = "Sync Disabled";
+        /*
+        if (Importer = GUI.Toggle(new Rect(10, 30, 140, 30), Importer, impText)) {
+            impText = "Importer ACTIVE";
+            FBXscaleImport2.enabled = true;
+        } else {
+            impText = "Importer Disabled";
+            FBXscaleImport2.enabled = false;
+        }
+        */
+        if (GUI.Button(new Rect(10, 50, 160, 20), "Bake Lightmaps")) {
             if (EditorUtility.DisplayDialog("Bake Lightmaps", "Are you sure?", "Yes", "Cancle")) 
                 BakeLightmaps();
             
         }
 
-        if (GUI.Button(new Rect(10, 55, 160, 20), "Render Sky"))
+        if (GUI.Button(new Rect(10, 75, 160, 20), "Render Sky"))
             if (EditorUtility.DisplayDialog("Render Sky", "Are you sure?", "Yes", "Cancle")) 
                 RenderSky();
         
 
-        if (GUI.Button(new Rect(10, 80, 160, 20), "Update RT Lights"))
+        if (GUI.Button(new Rect(10, 100, 160, 20), "Update RT Lights"))
             UpdateRtProps();
     }
 

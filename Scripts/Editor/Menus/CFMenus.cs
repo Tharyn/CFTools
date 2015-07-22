@@ -23,7 +23,7 @@ public class CFMenus : MonoBehaviour
     [MenuItem("CF/TEST CODE")]
     static void TestCode()
     {
-        //GameObject  A = Selection.objects[0] as GameObject;
+        GameObject  A = Selection.objects[0] as GameObject;
         /*
         Debug.Log(A.light.alreadyLightmapped);
         Debug.Log(A.light.cullingMask);
@@ -32,9 +32,10 @@ public class CFMenus : MonoBehaviour
         //Debug.Log(FindDepth(A, 0));
 
         //EditorGUIUtility.SetVisibleLayers(1);
-
+        Shader temp = EditorGUIUtility.LoadRequired("SceneView/SceneViewAura.shader") as Shader;
+        A.renderer.material.shader = temp;
         // How to change the visible layers(int layertMask)
-        Tools.visibleLayers = 10;
+        //Tools.visibleLayers = 10;
         //Tools.lockedLayers = 10;
 
 
@@ -47,6 +48,7 @@ public class CFMenus : MonoBehaviour
         lightmapProp.intValue = 1;
         serialObj.ApplyModifiedProperties(); 
          * */
+
 
     }
 

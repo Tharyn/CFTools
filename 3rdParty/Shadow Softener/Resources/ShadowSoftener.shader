@@ -44,7 +44,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF2x2
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{
@@ -67,7 +67,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF3x3
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{
@@ -90,7 +90,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF4x4
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{
@@ -113,7 +113,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF5x5
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{
@@ -136,7 +136,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF6x6
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{
@@ -159,7 +159,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF7x7
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{
@@ -182,7 +182,7 @@ SubShader {
 			
 			#define SOFTENER_FILTER PCF8x8
 			#pragma target 3.0
-			#include "Assets/Shadow Softener/Shaders/ShadowSoftener.cginc"
+			#include "ShadowSoftener.cginc"
 			
 			fixed4 frag (v2f i) : COLOR
 			{

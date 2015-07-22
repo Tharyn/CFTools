@@ -1,0 +1,68 @@
+﻿using UnityEngine;
+using System.Collections;
+using UnityEditor;
+using System.Collections;
+using System;
+using System.IO;
+
+public class GGX : ScriptableWizard {
+
+
+
+    byte[] bytes;
+
+
+    void OnWizardUpdate() {
+
+    }
+
+
+    void FlipTextureVertically() {
+
+
+    }
+
+    void FlipTextureHorozontally() {
+
+
+    }
+
+    void OnWizardCreate() {
+
+        
+
+
+
+            int width = 512;
+            int height = 128;
+
+            Texture2D tex = new Texture2D(width, height, TextureFormat.ARGB32, true);
+
+            tex.SetPixels(cubemap.GetPixels(CubemapFace.PositiveX));
+            bytes = tex.EncodeToPNG();
+            File.WriteAllBytes(Application.dataPath + "/" + cubemap.name + "_PositiveX.png", bytes);
+
+
+            UnityEngine.Object.DestroyImmediate(tex);
+        
+
+    }
+
+
+    [MenuItem("CF/Tools/GenerateGGX")]
+    static void CreateWizard() {
+
+        ScriptableWizard.DisplayWizard<CFExtractCubeMap>("Generate GGX LUTs", "Go");
+    }
+
+}
+
+
+
+
+        for( var i = 0; i < cols.Length; ++i ) {
+            cols[i] = Color.Lerp(cols[i], colors[mip], 0.33f);
+        }
+            texture.SetPixels( cols, mip );
+   
+        texture.Apply(false);
