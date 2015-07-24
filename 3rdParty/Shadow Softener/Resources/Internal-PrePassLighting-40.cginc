@@ -262,8 +262,8 @@ half4 CalculateLight (v2f i)
 	float maxSpec = 5;
 
 	// GGX
-	float spec = min(dotNL * D * F * vis, maxSpec);
-	spec *= saturate(atten);
+	//float spec = min(dotNL * D * F * vis, maxSpec);
+	//spec *= saturate(atten);
 
 
 	 
@@ -280,8 +280,8 @@ half4 CalculateLight (v2f i)
 	*/
 
 	// Blinn-Phong
-	//float spec = pow (max (0, dotNH), nspec.a*128);
-	//spec *= saturate(atten);
+	float spec = pow (max (0, dotNH), nspec.a*128);
+	spec *= saturate(atten);
 
 
 

@@ -199,8 +199,15 @@ public class FBXscaleImport2 : AssetPostprocessor
 
                             // SHADER ASSIGNMENT
                             if (mat.name.Contains("DL_LM_SS")) {
+
                                 mat.shader = Shader.Find("DeepLight/Specular/DL_LM_SS");
+
+                            } else if (mat.name.Contains("Firefly_PBR")) {
+
+                                mat.shader = Shader.Find("Firefly/Firefly_Adv");
+
                             } else {
+
                                 mat.shader = Shader.Find("DeepLight/BasicShader");
                             }
 
