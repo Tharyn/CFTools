@@ -235,7 +235,7 @@ half4 CalculateLight (v2f i)
 
 	// D
 	
-	float F0 = .1;
+	float F0 = .5;
 	float alphaSqr = alpha * alpha;
 	float pi = 3.14159;
 	float denom = dotNH * dotNH *(alphaSqr - 1.0) + 1.0;
@@ -261,9 +261,11 @@ half4 CalculateLight (v2f i)
 	// The max spec value prevent the intensity from exceeding what a single pixel cna handle
 	float maxSpec = 5;
 
+
+
 	// GGX
-	//float spec = min(dotNL * D * F * vis, maxSpec);
-	//spec *= saturate(atten);
+	float spec = min(dotNL * D * F * vis, maxSpec);
+	spec *= saturate(atten);
 
 
 	 
@@ -280,8 +282,8 @@ half4 CalculateLight (v2f i)
 	*/
 
 	// Blinn-Phong
-	float spec = pow (max (0, dotNH), nspec.a*128);
-	spec *= saturate(atten);
+	//float spec = pow (max (0, dotNH), nspec.a*128);
+	//spec *= saturate(atten);
 
 
 

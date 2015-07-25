@@ -121,7 +121,7 @@ Shader "Firefly/Firefly_Adv" {
 
 				// THIS IS IMPORTANT
 				// is controles the light ratio
-				directSpecular *= .2;
+				directSpecular *= .1;
 
 
 
@@ -146,24 +146,41 @@ Shader "Firefly/Firefly_Adv" {
 
 				// LIGHTMAPPING IS ON
 				#ifndef LIGHTMAP_OFF 
-					// THIS IS MULTIPLIED TIMES THE AMBIENT LEVEL SO REFLETIONS MATCH AMBIENT LIGHTING
-					indirectSpecular += lightmapAccumulation.rgb * _RefAmb;
-					//indirectSpecular *= lightmapAccumulation.rgb * _AoMap_var ;
-				#else 
-					// SKYSHOP REFLECTIONS
 					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
+					float fp = pow(fresnel, pow(_SpecMap_var.a,1));
 
+					float brightness = (_SpecMap_var.r+_SpecMap_var.g+_SpecMap_var.b)*.3333;
+
+					indirectSpecular *=  brightness * (1- fp) + _SpecMap_var.rgb;
 
 					float3 indirectSpecularAmb = indirectSpecular * _AoMap_var * _RoomAmb + _RefAmb;
 					float3 indirectSpecularDirect = indirectSpecular * (lightAccumulation.rgb - _RoomAmb ) * _AoMap_var;
 
-					indirectSpecular = indirectSpecularAmb + max(0,indirectSpecularDirect);
+					// THIS IS MULTIPLIED TIMES THE AMBIENT LEVEL SO REFLETIONS MATCH AMBIENT LIGHTING
+					//indirectSpecular += lightmapAccumulation.rgb * _RefAmb;
+
+				#else 
+					// SKYSHOP REFLECTIONS
+					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
+					float fp = pow(fresnel, pow(_SpecMap_var.a,1));
+
+					float brightness = (_SpecMap_var.r+_SpecMap_var.g+_SpecMap_var.b)*.3333;
+
+					indirectSpecular *=  brightness * (1- fp) + _SpecMap_var.rgb;
+
+					float3 indirectSpecularAmb = indirectSpecular * _AoMap_var * _RoomAmb + _RefAmb;
+					float3 indirectSpecularDirect = indirectSpecular * (lightAccumulation.rgb - _RoomAmb ) * _AoMap_var;
 
 				#endif
 
 				// TOTAL SPECULAR
+
+				// Maxed to prevent over brightening
+				//float3 specular = max(directSpecular , indirectSpecular) * _SpecMap_var.rgb ;
+
+				// Additive
                 float3 specular = (directSpecular + indirectSpecular) * _SpecMap_var.rgb ;
-				
+			
 
 
 			/////// DIFFUSE:
@@ -197,9 +214,9 @@ Shader "Firefly/Firefly_Adv" {
 
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
-				//diffuse = (1,1,1,1);
+
 			/////// Final Color:
-                float3 finalColor = diffuse + (specular*specular);
+                float3 finalColor = diffuse + specular;
                 return fixed4(  finalColor, 1 );
 
 
