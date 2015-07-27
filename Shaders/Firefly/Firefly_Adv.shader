@@ -366,11 +366,17 @@ Shader "Firefly/Firefly_Adv" {
 				#else 
 					float3 directDiffuse = lightAccumulation.rgb ;
 
+
+					// SAME AS BELOW BUT PRE LERPED TO ELIMINATE A SKYSHOP READ
+					directDiffuse += marmoDiffuse(lerp(i.normalDir,normalDirection,1-_SubSurface)).rgb * _RoomAmb * 1.1; // Diffuse Ambient Light
+
+				// DEPRECIATED
 					// HAVEING THE SUBSURFACE PARAMETER REQUIRES 2 READS FROM SKYSHOP
 					// PERTERBED VERSION AKES THE LIGHTING TOO HARSH 
-					directDiffuse += marmoDiffuse(normalDirection).rgb * _RoomAmb * (1-_SubSurface) * 1.1; // Diffuse Ambient Light
+					//directDiffuse += marmoDiffuse(normalDirection).rgb * _RoomAmb * (1-_SubSurface) * 1.1; // Diffuse Ambient Light
+
 					// FOR IBL USEING THE NORMAL NOT THE  PERTURBERD GIVE SOFTER LIGHTING
-					directDiffuse += marmoDiffuse(i.normalDir).rgb * _RoomAmb * _SubSurface * 1.1;
+					//directDiffuse += marmoDiffuse(i.normalDir).rgb * _RoomAmb * _SubSurface * 1.1;
 
 					directDiffuse *= _AoLtMt_var.r;
 					directDiffuse *= sqrt(_AoLtMt_var.g);
