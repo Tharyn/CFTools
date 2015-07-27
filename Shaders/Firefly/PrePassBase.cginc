@@ -1,7 +1,7 @@
 ﻿
 			uniform sampler2D _SpecMap; uniform float4 _SpecMap_ST;
 			uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
-			uniform sampler2D _AoMap; uniform float4 _AoMap_ST;
+			uniform sampler2D _AoLtMt; uniform float4 _AoLtMt_ST;
 
             struct VertexInput {
                 float4 vertex : POSITION;
@@ -19,6 +19,7 @@
                 float3 tangentDir : TEXCOORD3;
                 float3 binormalDir : TEXCOORD4;
             };
+
 
             VertexOutput vert (VertexInput v) {
                 VertexOutput o;

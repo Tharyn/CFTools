@@ -22,6 +22,7 @@
                 #endif
 
 
+
 		/////// LIGHTING 
                 half4 lightAccumulation = tex2Dproj(_LightBuffer, UNITY_PROJ_COORD(i.projPos));
 

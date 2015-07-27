@@ -12,7 +12,7 @@
                 float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
 /////// Vectors:
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
-				float4 _HeightMap_var = tex2D(_AoMap, TRANSFORM_TEX(i.uv0, _AoMap) );
+				float4 _HeightMap_var = tex2D(_AoLtMt, TRANSFORM_TEX(i.uv0, _AoLtMt) );
                 float2 parallaxUV = (_ParalaxAmt*(_HeightMap_var.a - .75)*mul(tangentTransform, viewDirection).xy + i.uv0);
 				float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(parallaxUV.rg, _BumpMap)));
 

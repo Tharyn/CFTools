@@ -7,13 +7,14 @@ Shader "Firefly/Firefly_Adv" {
 		_SpecMap ("SpecMap", 2D) = "white" {}
 		_BumpMap ("BumpMap", 2D) = "bump" {}
 
-		_AoMap ("AoMap", 2D) = "white" {}
+		_AoLtMt ("AoLtMt (AO,Light,Metal)", 2D) = "white" {}
 		_CurveMap ("CurveMap", 2D) = "white" {}
 
 		// Used just for BEAST
         _SpecColor ("SpecColor (4LM)", Color) = (0.5,0.5,0.5,1)
-        _Shininess ("Shininess (4LM)", Range(0, 1)) = 0.7
+        _Shininess ("Shininess (4LM)", Range(0, 1)) = 0.5
 
+		_SubSurface ("SubSurface ", Range(0, 1)) = 0.1
 		// DEEP LIGHT PARAMETERS
 		_RoomAmb ("RoomAmb", Color) = (1,1,1,1)
 		_RefAmb ("ReflectionAmb", Color) = (0.0,0.0,0.0,1)
@@ -27,7 +28,6 @@ Shader "Firefly/Firefly_Adv" {
 		_L2Color ("L2Color", Color) = (1,1,1,1)
 
 
-		
     }
     SubShader {
         Tags {
@@ -52,9 +52,52 @@ Shader "Firefly/Firefly_Adv" {
             #pragma target 3.0
             #pragma glsl
 
-			#include "PrePassBase.cginc"
+		//#include "PrePassBase.cginc"
+			uniform sampler2D _SpecMap; uniform float4 _SpecMap_ST;
+			uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
+			uniform sampler2D _AoLtMt; uniform float4 _AoLtMt_ST;
 
-			#include "PrePassNormMapFrag.cginc"
+            struct VertexInput {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                float4 tangent : TANGENT;
+                float2 texcoord0 : TEXCOORD0;
+                float2 texcoord1 : TEXCOORD1;
+            };
+
+            struct VertexOutput {
+                float4 pos : SV_POSITION;
+                float2 uv0 : TEXCOORD0;
+                float4 posWorld : TEXCOORD1;
+                float3 normalDir : TEXCOORD2;
+                float3 tangentDir : TEXCOORD3;
+                float3 binormalDir : TEXCOORD4;
+            };
+
+
+            VertexOutput vert (VertexInput v) {
+                VertexOutput o;
+                o.uv0 = v.texcoord0;
+                o.normalDir = mul(_Object2World, float4(v.normal,0)).xyz;
+                o.tangentDir = normalize( mul( _Object2World, float4( v.tangent.xyz, 0.0 ) ).xyz );
+                o.binormalDir = normalize(cross(o.normalDir, o.tangentDir) * v.tangent.w);
+                o.posWorld = mul(_Object2World, v.vertex);
+                o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+                return o;
+            }
+
+		//#include "PrePassNormMapFrag.cginc"
+			fixed4 frag(VertexOutput i) : COLOR {
+                i.normalDir = normalize(i.normalDir);
+                float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
+			/////// Vectors:
+                float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld.xyz);
+                float3 _BumpMap_var = UnpackNormal(tex2D(_BumpMap,TRANSFORM_TEX(i.uv0, _BumpMap)));
+                float3 normalLocal = _BumpMap_var.rgb;
+                float3 normalDirection = normalize(mul( normalLocal, tangentTransform )); // Perturbed normals
+                float4 _SpecMap_var = tex2D(_SpecMap,TRANSFORM_TEX(i.uv0, _SpecMap));
+                return fixed4( normalDirection * 0.5 + 0.5, max(_SpecMap_var.a,0.0078125) );
+            }
 
 
             ENDCG
@@ -84,20 +127,182 @@ Shader "Firefly/Firefly_Adv" {
 				#pragma glsl
 
 
-				#include "PrepassFinalA.cginc"
+			//#include "PrepassFinalA.cginc"
+				uniform sampler2D _LightBuffer;
 
-				// SKYSHOP
+				#if defined (SHADER_API_XBOX360) && defined (HDR_LIGHT_PREPASS_ON)
+					sampler2D _LightSpecBuffer;
+				#endif
+
+				uniform fixed4 unity_Ambient;
+
+				#ifndef LIGHTMAP_OFF
+					float4 unity_LightmapST;
+					sampler2D unity_Lightmap;
+					sampler2D unity_LightmapInd;
+					float4 unity_LightmapFade;
+				#endif
+
+			// TEXTURES
+				uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+				uniform sampler2D _SpecMap; uniform float4 _SpecMap_ST;
+				uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
+				uniform sampler2D _AoLtMt;	uniform float4 _AoLtMt_ST;
+				uniform sampler2D _CurveMap;uniform float4 _CurveMap_ST;
+
+
+			// DEEP LIGHT PARAMETERS
+				uniform float _SubSurface;
+
+				uniform float4 _RoomAmb;
+				uniform float4 _RefAmb;
+
+				uniform float4 _L1Pos;
+				uniform float4 _L2Pos;
+
+				uniform float _L1Intensity;
+				uniform float4 _L1Color;
+
+				uniform float _L2Intensity;
+				uniform float4 _L2Color;
+
+			// SKYSHOP
 				#include "SkyShopIBL.cginc"
 				#include "SkyShopReflection.cginc"
 
-				#include "PrepassFinalB.cginc"
+			//#include "PrepassFinalB.cginc"
+				struct VertexInput {
+					float4 vertex : POSITION;
+					float3 normal : NORMAL;
+					float4 tangent : TANGENT;
+					float2 texcoord0 : TEXCOORD0;
+					float2 texcoord1 : TEXCOORD1;
+				};
 
-				#include "PrepassFinalNorm.cginc"
+				struct VertexOutput {
+					float4 pos : SV_POSITION;
+					float2 uv0 : TEXCOORD0;
+					float4 posWorld : TEXCOORD1;
+					float3 normalDir : TEXCOORD2;
+					float3 tangentDir : TEXCOORD3;
+					float3 binormalDir : TEXCOORD4;
+					float4 projPos : TEXCOORD5;
+					#ifndef LIGHTMAP_OFF
+						float2 uvLM : TEXCOORD6;
+						#ifdef DIRLIGHTMAP_OFF
+							float4 lmapFadePos : TEXCOORD7;
+						#endif
+					#endif
+				};
 
-				#include "PrepassFinalC.cginc"
+			/////// VERTEX SHADER
+				VertexOutput vert (VertexInput v) {
+					VertexOutput o;
+					o.uv0 = v.texcoord0;
+					o.normalDir = mul(_Object2World, float4(v.normal,0)).xyz;
+					o.tangentDir = normalize( mul( _Object2World, float4( v.tangent.xyz, 0.0 ) ).xyz );
+					o.binormalDir = normalize(cross(o.normalDir, o.tangentDir) * v.tangent.w);
+					o.posWorld = mul(_Object2World, v.vertex);
+					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+					o.projPos = ComputeScreenPos (o.pos);
+					COMPUTE_EYEDEPTH(o.projPos.z);
+
+					#ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
+						o.uvLM = v.texcoord1 * unity_LightmapST.xy + unity_LightmapST.zw;
+						#ifdef DIRLIGHTMAP_OFF
+							o.lmapFadePos.xyz = ( mul(_Object2World, v.vertex).xyz - unity_ShadowFadeCenterAndType.xyz) * unity_ShadowFadeCenterAndType.w;
+							o.lmapFadePos.w = ( -mul(UNITY_MATRIX_MV, v.vertex).z) * (1.0 - unity_ShadowFadeCenterAndType.w);
+						#endif
+					#endif
+
+					return o;
+				}
+
+			/////// FRAGMENT SHADER
+				fixed4 frag(VertexOutput i) : COLOR {
 
 
-				/////// SPECULAR:
+			/////// Vectors:
+				float3 L1Direction = normalize( _L1Pos.xyz - i.posWorld.xyz);
+				float3 L2Direction = normalize( _L2Pos.xyz - i.posWorld.xyz);
+
+				float3 viewDirection = normalize( _WorldSpaceCameraPos.xyz - i.posWorld.xyz);
+
+				i.normalDir = normalize(i.normalDir);
+				float3x3 tangentTransform = float3x3( i.tangentDir, i.binormalDir, i.normalDir);
+                
+			//#include "PrepassFinalNorm.cginc"
+			/////// ADDITIONAL MAPS
+				float4 _MainTex_var = tex2D(_MainTex, TRANSFORM_TEX(i.uv0, _MainTex) );
+				float4 _SpecMap_var = tex2D(_SpecMap, TRANSFORM_TEX(i.uv0, _SpecMap) );
+				float3 _BumpMap_var = UnpackNormal( tex2D(_BumpMap, TRANSFORM_TEX(i.uv0, _BumpMap) ) );
+				float3 _AoLtMt_var = tex2D(_AoLtMt, TRANSFORM_TEX(i.uv0, _AoLtMt) );
+
+			//#include "PrepassFinalC.cginc"
+                float3	normalLocal = _BumpMap_var.rgb;
+                float3	normalDirection = normalize( mul( normalLocal, tangentTransform ) ); // Perturbed normals
+                float3	viewReflectDirection = reflect( -viewDirection, normalDirection );
+				float	fresnel = dot(normalDirection,viewDirection);
+
+			//////???????
+                #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON
+                    float4 lmtex = tex2D(unity_Lightmap,i.uvLM);
+                    #ifndef DIRLIGHTMAP_OFF
+                        float3 lightmap = DecodeLightmap(lmtex);
+                        float3 scalePerBasisVector = DecodeLightmap( tex2D(unity_LightmapInd,i.uvLM) );
+                        UNITY_DIRBASIS
+                        half3 normalInRnmBasis = saturate( mul(unity_DirBasis, normalLocal) );
+                        lightmap *= dot(normalInRnmBasis, scalePerBasisVector);
+                    #else
+                        float3 lightmap = DecodeLightmap(lmtex);
+                    #endif
+                #endif
+
+
+
+			/////// LIGHTING 
+                half4 lightAccumulation = tex2Dproj(_LightBuffer, UNITY_PROJ_COORD(i.projPos));
+
+				// OPEN GLES 2-3
+                #if defined (SHADER_API_GLES) || defined (SHADER_API_GLES3)
+                    lightAccumulation = max(lightAccumulation, half4(0.001));
+                #endif
+
+				// HDR
+                #ifndef HDR_LIGHT_PREPASS_ON
+                    lightAccumulation = -log2(lightAccumulation);
+                #endif
+
+				// XBOX
+                #if defined (SHADER_API_XBOX360) && defined (HDR_LIGHT_PREPASS_ON)
+                    lightAccumulation.w = tex2Dproj (_LightSpecBuffer, UNITY_PROJ_COORD(i.projPos)).r;
+                #endif
+
+				// LIGHTMAPPING IS ON
+				#ifndef LIGHTMAP_OFF 
+                    half3 lightmapAccumulation = half3(0,0,0);
+                    #ifdef DIRLIGHTMAP_OFF
+                        half lmFade = length (i.lmapFadePos) * unity_LightmapFade.z + unity_LightmapFade.w;
+                        half3 lmFull = DecodeLightmap (tex2D(unity_Lightmap, i.uvLM));
+                        half3 lmIndirect = DecodeLightmap (tex2D(unity_LightmapInd, i.uvLM));
+                        half3 lm = lerp (lmIndirect, lmFull, saturate(lmFade));
+                        lightmapAccumulation.rgb += lm;
+                    #else
+                        fixed4 lmIndTex = tex2D(unity_LightmapInd, i.uvLM);
+                        half3 scalePerBasisVectorDiffuse;
+                        half3 lm = DirLightmapDiffuse (unity_DirBasis, lmtex, lmIndTex, normalLocal, 1, scalePerBasisVectorDiffuse);
+                        half3 lightDir = normalize (scalePerBasisVectorDiffuse.x * unity_DirBasis[0] + scalePerBasisVectorDiffuse.y * unity_DirBasis[1] + scalePerBasisVectorDiffuse.z * unity_DirBasis[2]);
+                        lightDir = mul(lightDir, tangentTransform);
+                        half3 h = normalize (lightDir + viewDirection);
+                        float nh = max (0, dot (normalDirection, h));
+                        float lmspec = pow (nh, _SpecGloss.a * 128.0);
+                        half3 specColor = lm * _SpecGloss.rgb * lmspec;
+                        lightmapAccumulation += half4(lm + specColor, lmspec);
+                    #endif
+                #endif
+
+
+			/////// SPECULAR:
                 float Pi = 3.141592654;
                 float InvPi = 0.31830988618;
 
@@ -105,10 +310,6 @@ Shader "Firefly/Firefly_Adv" {
 				//float3 specularColor = (_SpecMap_var.rgb+(1.0-max(0,dot(normalDirection, viewDirection))));
 
                 float specularMonochrome = dot(_SpecMap_var.rgb, float3(0.3,0.59,0.11));
-
-
-
-
 
 
 				// I THINK THIS IS PHONG ?????
@@ -123,94 +324,59 @@ Shader "Firefly/Firefly_Adv" {
 				// is controles the light ratio
 				directSpecular *= .1;
 
-
-
 				// Where we control the reflection by the light intensity
 				float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
 				float3 L2pow = _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
-
-				
-
-				/*LOOKUP TABLE
-				//.03125 * band + .1
-				float linBand = 1-(.03125 * 2 +.1);
-				float L1dot =  dot(L1Direction, viewReflectDirection);
-				float2 L1uv = float2(L1dot,linBand);
-				float L1RemapLin = tex2D(_CurveMap,TRANSFORM_TEX(L1uv, _CurveMap)).r;
-				*/
-
-
-				// Reflection is multiplied by the lights/dir for face RT lighting in Ref
-				//indirectSpecular *= L1pow + L2pow + _RoomAmb;
-
 				// LIGHTMAPPING IS ON
 				#ifndef LIGHTMAP_OFF 
 					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
-					float fp = pow(fresnel, pow(_SpecMap_var.a,1));
+					indirectSpecular *= min(_SpecMap_var + (_SpecMap_var * (1-fresnel)),1) ;
 
-					float brightness = (_SpecMap_var.r+_SpecMap_var.g+_SpecMap_var.b)*.3333;
+					indirectSpecular *= (1 / lightmapAccumulation.rgb) * lightmapAccumulation.rgb ;
+					indirectSpecular *= _AoLtMt_var.g * _AoLtMt_var.r * _RoomAmb ;
 
-					indirectSpecular *=  brightness * (1- fp) + _SpecMap_var.rgb;
-
-					float3 indirectSpecularAmb = indirectSpecular * _AoMap_var * _RoomAmb + _RefAmb;
-					float3 indirectSpecularDirect = indirectSpecular * (lightAccumulation.rgb - _RoomAmb ) * _AoMap_var;
-
-					// THIS IS MULTIPLIED TIMES THE AMBIENT LEVEL SO REFLETIONS MATCH AMBIENT LIGHTING
-					//indirectSpecular += lightmapAccumulation.rgb * _RefAmb;
 
 				#else 
 					// SKYSHOP REFLECTIONS
 					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
-					float fp = pow(fresnel, pow(_SpecMap_var.a,1));
 
-					float brightness = (_SpecMap_var.r+_SpecMap_var.g+_SpecMap_var.b)*.3333;
-
-					indirectSpecular *=  brightness * (1- fp) + _SpecMap_var.rgb;
-
-					float3 indirectSpecularAmb = indirectSpecular * _AoMap_var * _RoomAmb + _RefAmb;
-					float3 indirectSpecularDirect = indirectSpecular * (lightAccumulation.rgb - _RoomAmb ) * _AoMap_var;
+					// Front = Spec, side = spec *2 but no greater than 1.
+					indirectSpecular *= min(_SpecMap_var + (_SpecMap_var* (1-fresnel)),1) ;
+					indirectSpecular *= _AoLtMt_var.r;
+					indirectSpecular *= _AoLtMt_var.g;
+					indirectSpecular *=  _RoomAmb ;
 
 				#endif
 
-				// TOTAL SPECULAR
-
-				// Maxed to prevent over brightening
-				//float3 specular = max(directSpecular , indirectSpecular) * _SpecMap_var.rgb ;
-
 				// Additive
-                float3 specular = (directSpecular + indirectSpecular) * _SpecMap_var.rgb ;
+                float3 specular = (directSpecular + indirectSpecular)  ;
 			
 
 
 			/////// DIFFUSE:
-				// ON  ->
-                #ifndef LIGHTMAP_OFF 
-                    float3 directDiffuse = float3(0,0,0);
-                #else  // OFF ->
-                    float3 directDiffuse = lightAccumulation.rgb ;
-                #endif
-
 				// ON
                 #ifndef LIGHTMAP_OFF 
-					 lightAccumulation.rgb + lightmapAccumulation.rgb;
-
-					/* GI BASED ON DISTANCE (Removed in preference to location global GI)
-					float clampNode = clamp((1.0 - (distance(_L1Pos.rgb,i.posWorld.rgb)/_L1Falloff)),0,1);
-					directDiffuse += (lightAccumulation.rgb * lightmapAccumulation.rgb) + ( lightmapAccumulation.rgb * (clampNode * _L1Intensity)) ;
-					*/
+					float3 directDiffuse = float3(0,0,0);
+					lightAccumulation.rgb + lightmapAccumulation.rgb;
 
 					// BASED IN SINGLE AMBIENT VALUE
 					directDiffuse += lightAccumulation.rgb * lightmapAccumulation.rgb  ;	// Multi lighting by the lightmap
-					directDiffuse += lightmapAccumulation.rgb * _RoomAmb * _AoMap_var ;		// Add light map the ambient amount and mult by local AOmap
+					directDiffuse += lightmapAccumulation.rgb * _RoomAmb * _AoLtMt_var.r ;		// Add light map the ambient amount and mult by local AOmap
 				#else 
-					directDiffuse += marmoDiffuse(normalDirection).rgb * _RoomAmb; // Diffuse Ambient Light
+					float3 directDiffuse = lightAccumulation.rgb ;
+
+					// HAVEING THE SUBSURFACE PARAMETER REQUIRES 2 READS FROM SKYSHOP
+					// PERTERBED VERSION AKES THE LIGHTING TOO HARSH 
+					directDiffuse += marmoDiffuse(normalDirection).rgb * _RoomAmb * (1-_SubSurface) * 1.1; // Diffuse Ambient Light
+					// FOR IBL USEING THE NORMAL NOT THE  PERTURBERD GIVE SOFTER LIGHTING
+					directDiffuse += marmoDiffuse(i.normalDir).rgb * _RoomAmb * _SubSurface * 1.1;
+
+					directDiffuse *= _AoLtMt_var.r;
+					directDiffuse *= sqrt(_AoLtMt_var.g);
                 #endif
 
 				float3 diffuse =  directDiffuse * _MainTex_var.rgb ;
-				//float3 diffuse =  directDiffuse * sqrt(_MainTex_var.rgb) ;
-				//float3 diffuse =  sqrt(directDiffuse) * _MainTex_var.rgb ;
-				//float3 diffuse =  sqrt(directDiffuse * _MainTex_var.rgb) ;
 
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
@@ -627,7 +793,7 @@ Shader "Firefly/Firefly_Adv" {
 
 	/// Final Color:
                 float3 finalColor = diffuse + specular;
-                return fixed4(finalColor * 1,0);
+                return fixed4(directSpecular * 1,0);
             }
 
             

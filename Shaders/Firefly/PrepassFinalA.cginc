@@ -19,7 +19,7 @@
 			uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
 			uniform sampler2D _SpecMap; uniform float4 _SpecMap_ST;
 			uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
-			uniform sampler2D _AoMap;	uniform float4 _AoMap_ST;
+			uniform sampler2D _AoLtMt_var;	uniform float4 _AoLtMt_ST;
 			uniform sampler2D _CurveMap;uniform float4 _CurveMap_ST;
 
 
