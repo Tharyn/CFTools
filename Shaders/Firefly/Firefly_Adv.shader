@@ -3,30 +3,31 @@
 
 Shader "Firefly/Firefly_Adv" {
     Properties {
-        _MainTex ("MainTex", 2D) = "white" {}
-		_SpecMap ("SpecMap", 2D) = "white" {}
-		_BumpMap ("BumpMap", 2D) = "bump" {}
+        _MainTex	("MainTex", 2D) = "white" {}
+		_SubSurface ("SubSurface", Range(0, 1)) = 0.1
+		_SpecMap	("SpecMap", 2D) = "white" {}
+		_BumpMap	("BumpMap", 2D) = "bump" {}
 
-		_AoLtMt ("AoLtMt (AO,Light,Metal)", 2D) = "white" {}
-		_CurveMap ("CurveMap", 2D) = "white" {}
+		_AoLtMt		("AoLtMt (AO,Light,Metal)", 2D) = "white" {}
+		_RoomAmb	("Ambient", Color) = (1,1,1)
+		_RefAmb	("Ambient (Reflections)", Color) =  (0.0,0.0,0.0,1)
+		_EmisMap	("EmisMap", 2D) = "black" {}
+		_EmisColor	("Emission", Color) = (1,1,1)
+		_EmisAmt	("Emission", Float) = 0
+		//_CurveMap ("CurveMap", 2D) = "white" {}
 
-		// Used just for BEAST
-        _SpecColor ("SpecColor (4LM)", Color) = (0.5,0.5,0.5,1)
-        _Shininess ("Shininess (4LM)", Range(0, 1)) = 0.5
 
-		_SubSurface ("SubSurface ", Range(0, 1)) = 0.1
-		// DEEP LIGHT PARAMETERS
-		_RoomAmb ("RoomAmb", Color) = (1,1,1,1)
-		_RefAmb ("ReflectionAmb", Color) = (0.0,0.0,0.0,1)
-
-        _L1Pos ("L1Pos", Vector) = (0,0,0,0)
-		_L2Pos ("L2Pos", Vector) = (0,0,0,0)
+        //_L1Pos ("L1Pos", Vector) = (0,0,0,0)
+		//_L2Pos ("L2Pos", Vector) = (0,0,0,0)
 
 		_L1Intensity ("L1Intensity ", Float ) = 1
 		_L1Color ("L1Color", Color) = (1,1,1,1)
 		_L2Intensity ("L2Intensity ", Float ) = 1
 		_L2Color ("L2Color", Color) = (1,1,1,1)
+				// Used just for BEAST
 
+        _SpecColor ("SpecColor (Beast)", Color) = (0.5,0.5,0.5,1)
+        _Shininess ("Shininess (Beast)", Range(0, 1)) = 0.5
 
     }
     SubShader {
@@ -148,11 +149,14 @@ Shader "Firefly/Firefly_Adv" {
 				uniform sampler2D _SpecMap; uniform float4 _SpecMap_ST;
 				uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
 				uniform sampler2D _AoLtMt;	uniform float4 _AoLtMt_ST;
-				uniform sampler2D _CurveMap;uniform float4 _CurveMap_ST;
-
+				//uniform sampler2D _CurveMap;uniform float4 _CurveMap_ST;
+				uniform sampler2D _EmisMap; uniform float4 _EmisMap_ST;
 
 			// DEEP LIGHT PARAMETERS
 				uniform float _SubSurface;
+
+				uniform float4 _EmisColor;
+				uniform float _EmisAmt;
 
 				uniform float4 _RoomAmb;
 				uniform float4 _RefAmb;
@@ -237,6 +241,7 @@ Shader "Firefly/Firefly_Adv" {
 				float4 _SpecMap_var = tex2D(_SpecMap, TRANSFORM_TEX(i.uv0, _SpecMap) );
 				float3 _BumpMap_var = UnpackNormal( tex2D(_BumpMap, TRANSFORM_TEX(i.uv0, _BumpMap) ) );
 				float3 _AoLtMt_var = tex2D(_AoLtMt, TRANSFORM_TEX(i.uv0, _AoLtMt) );
+				float3 _EmisMap_var = tex2D(_EmisMap, TRANSFORM_TEX(i.uv0, _EmisMap) );
 
 			//#include "PrepassFinalC.cginc"
                 float3	normalLocal = _BumpMap_var.rgb;
@@ -328,6 +333,7 @@ Shader "Firefly/Firefly_Adv" {
 				float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
 				float3 L2pow = _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
+
 				// LIGHTMAPPING IS ON
 				#ifndef LIGHTMAP_OFF 
 					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
@@ -335,8 +341,6 @@ Shader "Firefly/Firefly_Adv" {
 
 					indirectSpecular *= (1 / lightmapAccumulation.rgb) * lightmapAccumulation.rgb ;
 					indirectSpecular *= _AoLtMt_var.g * _AoLtMt_var.r * _RoomAmb ;
-
-
 				#else 
 					// SKYSHOP REFLECTIONS
 					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
@@ -345,8 +349,7 @@ Shader "Firefly/Firefly_Adv" {
 					indirectSpecular *= min(_SpecMap_var + (_SpecMap_var* (1-fresnel)),1) ;
 					indirectSpecular *= _AoLtMt_var.r;
 					indirectSpecular *= _AoLtMt_var.g;
-					indirectSpecular *=  _RoomAmb ;
-
+					indirectSpecular *=  _RoomAmb;
 				#endif
 
 				// Additive
@@ -382,7 +385,8 @@ Shader "Firefly/Firefly_Adv" {
 					directDiffuse *= sqrt(_AoLtMt_var.g);
                 #endif
 
-				float3 diffuse =  directDiffuse * _MainTex_var.rgb ;
+				float3 diffuse =  directDiffuse * _MainTex_var.rgb;
+				diffuse +=  (_EmisMap_var*_EmisColor*_EmisAmt)*( (fresnel*.5)+.25);
 
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
