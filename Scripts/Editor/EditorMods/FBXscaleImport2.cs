@@ -205,7 +205,6 @@ public class FBXscaleImport2 : AssetPostprocessor
                             } else if (mat.name.Contains("Firefly_PBR")) {
 
                                 mat.shader = Shader.Find("Firefly/Firefly_Adv");
-
                             } else {
 
                                 mat.shader = Shader.Find("DeepLight/BasicShader");
@@ -218,22 +217,30 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 string assetPathStr = AssetDatabase.GUIDToAssetPath(tempArray[t]);
                                 Texture2D tempTex = Resources.LoadAssetAtPath(assetPathStr, typeof(Texture2D)) as Texture2D;
 
-
+                                
                                 if (assetPathStr.Contains("Albedo")) {
+                                    
                                     mat.SetTexture("_MainTex", tempTex);
                                 }
                                 if (assetPathStr.Contains("Spec")) {
+
                                     mat.SetTexture("_SpecMap", tempTex);
                                 }
 
-                                if (assetPathStr.Contains("AO")) {
-                                    mat.SetTexture("_AoMap", tempTex);
-                                }
+                                // Left in the search for AO as a backword compatibility
+                                if (assetPathStr.Contains("AoLtMt")) {
+                                    mat.SetTexture("_AoLtMt", tempTex);
+                                } else if (assetPathStr.Contains("AO")) {
+                                    mat.SetTexture("_AoLtMt", tempTex);
+                                } 
+
                                 if (assetPathStr.Contains("Norm")) {
                                     mat.SetTexture("_BumpMap", tempTex);
                                 }
 
-                               
+                                if (assetPathStr.Contains("Illum")) {
+                                    mat.SetTexture("_IllumMap", tempTex);
+                                }                          
                             }                        
                         }
 
