@@ -34,11 +34,11 @@ public class FBXscaleImport2 : AssetPostprocessor
         }
 
         // Set static object parameters
-        //if (assetPath.Contains("(Sets)"))
+        if (assetPath.Contains("(Sets)"))
         {
-            //ModelImporter importer = assetImporter as ModelImporter;
-            //importer.generateSecondaryUV = true;
-            //importer.secondaryUVPackMargin = 8;
+            ModelImporter importer = assetImporter as ModelImporter;
+            importer.generateSecondaryUV = true;
+            importer.secondaryUVPackMargin = 8;
         } 
 
     }
@@ -90,16 +90,7 @@ public class FBXscaleImport2 : AssetPostprocessor
     }
 
 
-    // Does file exist
-    bool DoesAssetExits(string[] Paths, string fileName){
 
-        string[] tempArray = AssetDatabase.FindAssets(fileName, Paths);
-
-        if (tempArray.Length > 0)
-            return true;
-        else
-            return false;
-    }
 
 
     // Read node data file
@@ -130,6 +121,16 @@ public class FBXscaleImport2 : AssetPostprocessor
         //Debug.Log(to);
         return to;
     }
+    // Does file exist
+    bool DoesAssetExits(string[] Paths, string fileName) {
+
+        string[] tempArray = AssetDatabase.FindAssets(fileName, Paths);
+
+        if (tempArray.Length > 0)
+            return true;
+        else
+            return false;
+    }
 
     // FBXscaleImport2 importer 2.0
     void OnPostprocessModel(GameObject go) {
@@ -142,19 +143,32 @@ public class FBXscaleImport2 : AssetPostprocessor
             GoChildren.Add(go); // ADD SELF
             CollectChildren(go.transform, ref GoChildren);
             
-            string[] Paths = new string[1];
-            Paths[0] = (GetFilePath(assetPath) + "Data");
+            //string[] Paths = new string[1];
+            //Paths[0] = (GetFilePath(assetPath) + "Data");
+            string dataPath = (GetFilePath(assetPath) + "Data");
+
 
             // For i in Children read data files
             for (int i = 0; i < GoChildren.Count; i++) {
                 
                 GameObject goc = GoChildren[i];
                 goc.isStatic = true;
+
+                string[] dirs = Directory.GetFiles(dataPath, (goc.name + "*"));
+
+                if (dirs.Length > 0) {
+                    Debug.Log("fuck");
+                }
+
+             
+                /// NEXT
                 // Has data file ?
-                if (DoesAssetExits(Paths, goc.name)) {
+                if (dirs.Length > 0) {
+
+
                     List<string> Keys = new List<string>();
                     List<string> Values = new List<string>();
-                    string filePath = Paths[0] + "/" + goc.name + ".txt";
+                    string filePath = dataPath + "/" + goc.name + ".txt";
                     MaxDataParser(ref Keys, ref Values, filePath);
 
                     // Get CLASS index
@@ -183,10 +197,12 @@ public class FBXscaleImport2 : AssetPostprocessor
 
                     int targetIndex = Keys.FindIndex(s => s.Contains("Target"));
 
+
                     Light Lcp = null;
                     CF_Properties CFP = null;
                     CF_DualLightProps DLP = null;
                     Camera cam = null;
+
 
                     if (goc.renderer != null) {
                         Material[] mats = goc.renderer.sharedMaterials;
@@ -217,9 +233,9 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 string assetPathStr = AssetDatabase.GUIDToAssetPath(tempArray[t]);
                                 Texture2D tempTex = Resources.LoadAssetAtPath(assetPathStr, typeof(Texture2D)) as Texture2D;
 
-                                
+
                                 if (assetPathStr.Contains("Albedo")) {
-                                    
+
                                     mat.SetTexture("_MainTex", tempTex);
                                 }
                                 if (assetPathStr.Contains("Spec")) {
@@ -232,16 +248,16 @@ public class FBXscaleImport2 : AssetPostprocessor
                                     mat.SetTexture("_AoLtMt", tempTex);
                                 } else if (assetPathStr.Contains("AO")) {
                                     mat.SetTexture("_AoLtMt", tempTex);
-                                } 
+                                }
 
                                 if (assetPathStr.Contains("Norm")) {
                                     mat.SetTexture("_BumpMap", tempTex);
                                 }
 
-                                if (assetPathStr.Contains("Illum")) {
-                                    mat.SetTexture("_IllumMap", tempTex);
-                                }                          
-                            }                        
+                                if (assetPathStr.Contains("Emis")) {
+                                    mat.SetTexture("_Emis", tempTex);
+                                }
+                            }
                         }
 
                     }
@@ -252,118 +268,117 @@ public class FBXscaleImport2 : AssetPostprocessor
 
                     // IF both the class and the type are defined in the data file continue
                     if (ClassIndex > -1 && TypeIndex > -1) {
-                        
+
                         switch (Values[ClassIndex]) {
 
                             case "Light": {
-                                if (!goc.GetComponent<Light>()) {
+                                    if (!goc.GetComponent<Light>()) {
 
-                                    Lcp = goc.AddComponent<Light>();
-                                    
-
-
-                                    // Type
-                                    string type = Values[TypeIndex];
-
-                                    if (type.IndexOf("Omni") > -1) {
-                                        Lcp.type = LightType.Point;
-                                        DLP = goc.AddComponent<CF_DualLightProps>();
-                                    } else if (type.IndexOf("Spot") > -1) {
-                                        Lcp.type = LightType.Spot;
-                                        DLP = goc.AddComponent<CF_DualLightProps>();
-                                    } else if (type.IndexOf("VRay") > -1) {
-                                        Lcp.type = LightType.Area;
-                                    }
+                                        Lcp = goc.AddComponent<Light>();
 
 
-                                    // FOV
-                                    if (RangeIndex > -1) {
-                                        float range = Convert.ToSingle(Values[RangeIndex]);
-                                        Lcp.range = range;
-                                        if (DLP != null) {
-                                            DLP.rtRange = range;
-                                            DLP.bkRange = range;
+                                        // Type
+                                        string type = Values[TypeIndex];
+
+                                        if (type.IndexOf("Omni") > -1) {
+                                            Lcp.type = LightType.Point;
+                                            DLP = goc.AddComponent<CF_DualLightProps>();
+                                        } else if (type.IndexOf("Spot") > -1) {
+                                            Lcp.type = LightType.Spot;
+                                            DLP = goc.AddComponent<CF_DualLightProps>();
+                                        } else if (type.IndexOf("VRay") > -1) {
+                                            Lcp.type = LightType.Area;
                                         }
-                                    }
 
-                                    // RANGE
-                                    if (fovIndex > -1) {
-                                        Lcp.spotAngle = Convert.ToSingle(Values[fovIndex]);
 
-                                    }
-                                    // Color
-                                    if (rIndex > -1) {
-                                        Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
-                                        Lcp.color = lColor;
-                                        if (DLP != null) {
-                                            DLP.rtColor = lColor;
-                                            DLP.bkColor = lColor;
-                                        }
-                                    }
-
-                                    // Intensiy
-                                    if (MultiIndex > -1) {
-                                        float intensity =  Convert.ToSingle(Values[MultiIndex]);
-                                        Lcp.intensity = intensity;
-                                        if (DLP != null) {
-                                            DLP.rtIntensity = intensity;
-                                            DLP.bkIntensity = intensity;
-                                        }
-                                    }
-
-                                    // Shadows
-                                    if (shadowIndex > -1) {
-                                        if (Convert.ToBoolean(Values[shadowIndex])) {
-                                            Lcp.shadows = LightShadows.Hard;
+                                        // FOV
+                                        if (RangeIndex > -1) {
+                                            float range = Convert.ToSingle(Values[RangeIndex]);
+                                            Lcp.range = range;
                                             if (DLP != null) {
-                                                DLP.rtShadows = LightShadows.Hard;
-                                                DLP.bkShadows = LightShadows.Hard;
-                                            }
-                                        } else {
-                                            Lcp.shadows = LightShadows.None;
-                                            if (DLP != null) {
-                                                DLP.rtShadows = LightShadows.None;
-                                                DLP.bkShadows = LightShadows.None;
+                                                DLP.rtRange = range;
+                                                DLP.bkRange = range;
                                             }
                                         }
+
+                                        // RANGE
+                                        if (fovIndex > -1) {
+                                            Lcp.spotAngle = Convert.ToSingle(Values[fovIndex]);
+
+                                        }
+                                        // Color
+                                        if (rIndex > -1) {
+                                            Color lColor = new Color(Convert.ToSingle(Values[rIndex]), Convert.ToSingle(Values[gIndex]), Convert.ToSingle(Values[bIndex]));
+                                            Lcp.color = lColor;
+                                            if (DLP != null) {
+                                                DLP.rtColor = lColor;
+                                                DLP.bkColor = lColor;
+                                            }
+                                        }
+
+                                        // Intensiy
+                                        if (MultiIndex > -1) {
+                                            float intensity = Convert.ToSingle(Values[MultiIndex]);
+                                            Lcp.intensity = intensity;
+                                            if (DLP != null) {
+                                                DLP.rtIntensity = intensity;
+                                                DLP.bkIntensity = intensity;
+                                            }
+                                        }
+
+                                        // Shadows
+                                        if (shadowIndex > -1) {
+                                            if (Convert.ToBoolean(Values[shadowIndex])) {
+                                                Lcp.shadows = LightShadows.Hard;
+                                                if (DLP != null) {
+                                                    DLP.rtShadows = LightShadows.Hard;
+                                                    DLP.bkShadows = LightShadows.Hard;
+                                                }
+                                            } else {
+                                                Lcp.shadows = LightShadows.None;
+                                                if (DLP != null) {
+                                                    DLP.rtShadows = LightShadows.None;
+                                                    DLP.bkShadows = LightShadows.None;
+                                                }
+                                            }
+                                        }
+
+                                        // Area Size
+                                        if (lengthIndex > -1 && widthIndex > -1) {
+                                            Lcp.areaSize = new Vector2(Convert.ToSingle(Values[lengthIndex]), Convert.ToSingle(Values[widthIndex]));
+                                        }
+
+
                                     }
-
-                                    // Area Size
-                                    if (lengthIndex > -1 && widthIndex > -1) {
-                                        Lcp.areaSize = new Vector2(Convert.ToSingle(Values[lengthIndex]), Convert.ToSingle(Values[widthIndex]));
-                                    }
-
-
-                                }
                                     break;
-                            }
+                                }
 
                             case "Collider": {
-                                switch (Values[TypeIndex]) {
-                                    case "Box": {
-                                        goc.AddComponent<BoxCollider>();
-                                        break;
+                                    switch (Values[TypeIndex]) {
+                                        case "Box": {
+                                                goc.AddComponent<BoxCollider>();
+                                                break;
+                                            }
+                                        case "Sphere": {
+                                                goc.AddComponent<SphereCollider>();
+                                                break;
+                                            }
+                                        case "Cylinder": {
+                                                CapsuleCollider col = goc.AddComponent<CapsuleCollider>();
+                                                col.direction = 2;
+                                                col.height = Convert.ToSingle(Values[heightIndex]);
+                                                col.radius = Convert.ToSingle(Values[radiusIndex]);
+                                                break;
+                                            }
                                     }
-                                    case "Sphere": {
-                                        goc.AddComponent<SphereCollider>();
-                                        break;
-                                    }
-                                    case "Cylinder": {
-                                        CapsuleCollider col = goc.AddComponent<CapsuleCollider>();
-                                        col.direction = 2;
-                                        col.height = Convert.ToSingle(Values[heightIndex]);
-                                        col.radius = Convert.ToSingle(Values[radiusIndex]);
-                                        break;
-                                    }
+                                    break;
                                 }
-                                break;
-                            }
 
                             case "Camera": {
                                     cam = goc.AddComponent<Camera>();
-                                    if (vFovIndex > -1) 
-                                       cam.fieldOfView = Convert.ToSingle(Values[vFovIndex]);
-                                    
+                                    if (vFovIndex > -1)
+                                        cam.fieldOfView = Convert.ToSingle(Values[vFovIndex]);
+
                                     if (nearIndex > -1)
                                         cam.nearClipPlane = Convert.ToSingle(Values[nearIndex]);
 
@@ -373,16 +388,17 @@ public class FBXscaleImport2 : AssetPostprocessor
                                     goc.AddComponent<FXAA>();
                                     //goc.AddComponent<AntialiasingAsPostEffect>();
                                     break;
-                            }
+                                }
 
                             case "Null": {
                                     break;
-                            }
+                                }
 
                         }
 
+
                         // Target or Null
-                        if (targetIndex > -1 ) {
+                        if (targetIndex > -1) {
                             CFP = goc.AddComponent<CF_Properties>();
                             CFP.lookAtTarget = (FindTarget(GoChildren, Values[targetIndex])).transform;
                         }
@@ -395,9 +411,10 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 CFP.size = 1;
                         }
                     }
-                }
 
+                }
             }
+
 
             // Strip tags off
             for (int i = 0; i < GoChildren.Count; i++) {
@@ -405,17 +422,7 @@ public class FBXscaleImport2 : AssetPostprocessor
                 string GoName = GoChildren[i].name.Split(strSpl2, StringSplitOptions.RemoveEmptyEntries)[0];
                 GoChildren[i].name = GoName;
             }
-            /* If a data file exists for a node
-            if (DoesAssetExits(Paths, GoChildren[3].name))
-            {
-                List<string> Keys = new List<string>();
-                List<string> Values = new List<string>();
-                string filePath = Paths[0] + "/" + GoChildren[3].name + ".txt";
-                MaxDataParser(ref Keys, ref Values, filePath);
-            }
-            */
-            
-            
+
         }
     }
 
