@@ -13,7 +13,7 @@ public class RenderFames : MonoBehaviour {
     public int height = 720;
     public RenderTexture theFrame;
     public int frameNum = 0;
-    public Camera camera;
+    //public Camera camera;
     public string FileName;
     byte[] bytes;
 

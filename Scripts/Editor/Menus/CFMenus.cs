@@ -23,7 +23,20 @@ public class CFMenus : MonoBehaviour
     [MenuItem("CF/TEST CODE")]
     static void TestCode()
     {
-        GameObject  A = Selection.objects[0] as GameObject;
+        //SceneView.SetSceneViewFiltering(false);
+        SceneView sv = SceneView.currentDrawingSceneView;
+        sv.SetSceneViewFiltering(false);
+        Camera view = (SceneView.currentDrawingSceneView).camera;
+        if (view != null) {
+            view.renderingPath = RenderingPath.DeferredLighting;
+            Debug.Log(view.renderingPath);
+            Debug.Log(view.actualRenderingPath);
+        }  else
+            Debug.Log("Nope");
+
+        //Debug.Log(view.actualRenderingPath);
+
+        //GameObject  A = Selection.objects[0] as GameObject;
         /*
         Debug.Log(A.light.alreadyLightmapped);
         Debug.Log(A.light.cullingMask);
@@ -32,8 +45,11 @@ public class CFMenus : MonoBehaviour
         //Debug.Log(FindDepth(A, 0));
 
         //EditorGUIUtility.SetVisibleLayers(1);
-        Shader temp = EditorGUIUtility.LoadRequired("SceneView/SceneViewAura.shader") as Shader;
-        A.renderer.material.shader = temp;
+
+        //Shader temp = EditorGUIUtility.LoadRequired("SceneView/SceneViewAura.shader") as Shader;
+        //A.renderer.material.shader = temp;
+
+
         // How to change the visible layers(int layertMask)
         //Tools.visibleLayers = 10;
         //Tools.lockedLayers = 10;

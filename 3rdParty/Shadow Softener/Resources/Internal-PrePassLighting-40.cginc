@@ -200,6 +200,7 @@ half4 CalculateLight (v2f i)
 		// CHANGE FOR POINT FALLOFF
 		float att = dot(tolight, tolight) * _LightPos.w;
 		att *= att;
+		att *= att;
 
 		float atten = tex2D (_LightTextureB0, att.rr).UNITY_ATTEN_CHANNEL;
 	
@@ -213,19 +214,15 @@ half4 CalculateLight (v2f i)
 	
 
 	 
-
 	half3 h = normalize (lightDir - normalize(wpos-_WorldSpaceCameraPos));
-
 	
 	half dotNH = saturate(dot(normal,h));
 
-	
 	half dotNL = saturate( dot (lightDir, normal));
 
 	// This msx fuinction maxes sure that the roughness can not get below .1
 	// This prevents complete loss of highlight
 	float fixRough = max((1-nspec.a), .08);
-
 
 	float alpha = (fixRough)*(fixRough);
 	float dotLH = saturate(dot(lightDir,h));
@@ -234,7 +231,6 @@ half4 CalculateLight (v2f i)
 
 
 	// D
-	
 	float F0 = .5;
 	float alphaSqr = alpha * alpha;
 	float pi = 3.14159;

@@ -10,7 +10,7 @@ public class GGXlive : MonoBehaviour {
     public Texture2D GGXlut;
 
     float LightingFuncGGX_D(float dotNH, float roughness) {
-        float fixRough = Mathf.Max(roughness, .1f);
+        //float fixRough = Mathf.Max(roughness, .1f);
         float alpha = roughness * roughness;
         float alphaSqr = alpha * alpha;
         float pi = 3.14159f;
@@ -67,8 +67,8 @@ public class GGXlive : MonoBehaviour {
                 float D = LightingFuncGGX_D((x / width), (y / height));
                 Vector2 FV = LightingFuncGGX_FV((x / width), (y / height));
 
-                Vector3 InterV3 = new Vector3(D, FV.x, FV.y);
-                float maxComp = MaxComp(InterV3);
+                //Vector3 InterV3 = new Vector3(D, FV.x, FV.y);
+                //float maxComp = MaxComp(InterV3);
 
                 Color InterC = new Color(0, 0, 0, 0);
                 /*

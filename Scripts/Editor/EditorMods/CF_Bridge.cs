@@ -7,9 +7,9 @@ public class CF_Bridge : EditorWindow {
 
     int timer = 0;
     private bool Active = false;
-    private bool Importer = false;
+    //private bool Importer = false;
     string text = "Sync Disabled";
-    string impText = "Importer Disabled";
+    //string impText = "Importer Disabled";
 
     public static bool run = false;
     public static bool importer = false;
@@ -114,7 +114,7 @@ public class CF_Bridge : EditorWindow {
     void RenderSky() {
 
         //CF_RoomLighting.SetReflectionGI(true);
-        CF_RoomLighting[] roomLighting = FindObjectsOfType(typeof(CF_RoomLighting)) as CF_RoomLighting[];
+        //CF_RoomLighting[] roomLighting = FindObjectsOfType(typeof(CF_RoomLighting)) as CF_RoomLighting[];
 
         if (Selection.gameObjects.Length > 0) {
             GameObject go = Selection.gameObjects[0];

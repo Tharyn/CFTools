@@ -222,9 +222,11 @@ public class FBXscaleImport2 : AssetPostprocessor
                             } else if (mat.name.Contains("Firefly_PBR")) {
 
                                 mat.shader = Shader.Find("Firefly/Firefly_Adv");
+
                             } else {
 
-                                mat.shader = Shader.Find("DeepLight/BasicShader");
+                                mat.shader = Shader.Find("Diffuse");
+
                             }
 
                             Debug.Log(mat.shader);
@@ -390,6 +392,15 @@ public class FBXscaleImport2 : AssetPostprocessor
                                     //goc.AddComponent<AntialiasingAsPostEffect>();
                                     break;
                                 }
+                            case "Control": {
+                                if (Values[TypeIndex] == "FFcVol" ) {
+
+                                    Shader temp = EditorGUIUtility.LoadRequired("SceneView/SceneViewAura.shader") as Shader;
+                                    goc.renderer.sharedMaterial.shader = temp;
+
+                                }
+                                    break;
+                            }
 
                             case "Null": {
                                     break;

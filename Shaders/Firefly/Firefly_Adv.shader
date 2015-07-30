@@ -10,7 +10,9 @@ Shader "Firefly/Firefly_Adv" {
 
 		_AoLtMt		("AoLtMt (AO,Light,Metal)", 2D) = "white" {}
 		_RoomAmb	("Ambient", Color) = (1,1,1)
-		_RefAmb	("Ambient (Reflections)", Color) =  (0.0,0.0,0.0,1)
+		_RefAmb		("Ambient (Reflections)", Color) =  (0.0,0.0,0.0,1)
+		_AmbBias	("Ambient Bias", Float) = 0
+
 		_EmisMap	("EmisMap", 2D) = "black" {}
 		_EmisColor	("Emission", Color) = (1,1,1)
 		_EmisAmt	("Emission", Float) = 0
@@ -160,6 +162,7 @@ Shader "Firefly/Firefly_Adv" {
 
 				uniform float4 _RoomAmb;
 				uniform float4 _RefAmb;
+				uniform float _AmbBias;
 
 				uniform float4 _L1Pos;
 				uniform float4 _L2Pos;
@@ -330,27 +333,20 @@ Shader "Firefly/Firefly_Adv" {
 				directSpecular *= .1;
 
 				// Where we control the reflection by the light intensity
-				float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
-				float3 L2pow = _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
+				//float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
+				//float3 L2pow = _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
+				float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
+
+				// Front = Spec, side = spec *2 but no greater than 1.
+				indirectSpecular *= min(_SpecMap_var + (_SpecMap_var * (1-fresnel)),1) ;
 
 				// LIGHTMAPPING IS ON
 				#ifndef LIGHTMAP_OFF 
-					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
-					indirectSpecular *= min(_SpecMap_var + (_SpecMap_var * (1-fresnel)),1) ;
-
 					indirectSpecular *= (1 / lightmapAccumulation.rgb) * lightmapAccumulation.rgb ;
-					indirectSpecular *= _AoLtMt_var.g * _AoLtMt_var.r * _RoomAmb ;
-				#else 
-					// SKYSHOP REFLECTIONS
-					float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
-
-					// Front = Spec, side = spec *2 but no greater than 1.
-					indirectSpecular *= min(_SpecMap_var + (_SpecMap_var* (1-fresnel)),1) ;
-					indirectSpecular *= _AoLtMt_var.r;
-					indirectSpecular *= _AoLtMt_var.g;
-					indirectSpecular *=  _RoomAmb;
 				#endif
+
+				indirectSpecular *=  _AoLtMt_var.r * _RoomAmb ;
 
 				// Additive
                 float3 specular = (directSpecular + indirectSpecular)  ;
@@ -364,14 +360,16 @@ Shader "Firefly/Firefly_Adv" {
 					lightAccumulation.rgb + lightmapAccumulation.rgb;
 
 					// BASED IN SINGLE AMBIENT VALUE
-					directDiffuse += lightAccumulation.rgb * lightmapAccumulation.rgb  ;	// Multi lighting by the lightmap
-					directDiffuse += lightmapAccumulation.rgb * _RoomAmb * _AoLtMt_var.r ;		// Add light map the ambient amount and mult by local AOmap
+					float3 lmLinear = lerp( lightmapAccumulation.rgb,sqrt(lightmapAccumulation.rgb) , _AmbBias);
+					directDiffuse += lightAccumulation.rgb * lmLinear ;	// Multi lighting by the lightmap
+					directDiffuse += lmLinear * _RoomAmb;		// Add light map the ambient amount and mult by local AOmap
 				#else 
 					float3 directDiffuse = lightAccumulation.rgb ;
 
-
 					// SAME AS BELOW BUT PRE LERPED TO ELIMINATE A SKYSHOP READ
-					directDiffuse += marmoDiffuse(lerp(i.normalDir,normalDirection,1-_SubSurface)).rgb * _RoomAmb * 1.1; // Diffuse Ambient Light
+					directDiffuse += marmoDiffuse(lerp(i.normalDir,normalDirection,1-_SubSurface)).rgb;
+					directDiffuse *= _RoomAmb;
+					directDiffuse *= 1.1; // Diffuse Ambient Light
 
 				// DEPRECIATED
 					// HAVEING THE SUBSURFACE PARAMETER REQUIRES 2 READS FROM SKYSHOP
@@ -380,13 +378,13 @@ Shader "Firefly/Firefly_Adv" {
 
 					// FOR IBL USEING THE NORMAL NOT THE  PERTURBERD GIVE SOFTER LIGHTING
 					//directDiffuse += marmoDiffuse(i.normalDir).rgb * _RoomAmb * _SubSurface * 1.1;
-
-					directDiffuse *= _AoLtMt_var.r;
-					directDiffuse *= sqrt(_AoLtMt_var.g);
                 #endif
 
+				directDiffuse *= _AoLtMt_var.r;
+
 				float3 diffuse =  directDiffuse * _MainTex_var.rgb;
-				diffuse +=  (_EmisMap_var*_EmisColor*_EmisAmt)*( (fresnel*.5)+.25);
+
+				diffuse +=  (_EmisMap_var*_EmisColor*_EmisAmt)*( (fresnel*.5) + .25);
 
 				// This is the function that determins how much diffuse based on reflection
                 diffuse *= 1-specularMonochrome;
