@@ -33,13 +33,14 @@ public class FBXscaleImport2 : AssetPostprocessor
             importer.globalScale = 0.0833333f;
         }
 
-        // Set static object parameters
+        /* Set static object parameters
         if (assetPath.Contains("(Sets)"))
         {
             ModelImporter importer = assetImporter as ModelImporter;
             importer.generateSecondaryUV = true;
             importer.secondaryUVPackMargin = 8;
         } 
+         */
 
     }
 
