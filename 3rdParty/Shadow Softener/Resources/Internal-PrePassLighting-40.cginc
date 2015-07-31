@@ -200,7 +200,7 @@ half4 CalculateLight (v2f i)
 		// CHANGE FOR POINT FALLOFF
 		float att = dot(tolight, tolight) * _LightPos.w;
 		att *= att;
-		att *= att;
+		//att *= att;
 
 		float atten = tex2D (_LightTextureB0, att.rr).UNITY_ATTEN_CHANNEL;
 	

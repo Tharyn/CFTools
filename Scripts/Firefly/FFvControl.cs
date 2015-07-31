@@ -11,6 +11,7 @@ public class FFvControl : MonoBehaviour {
     public Sky sky;
     
     public float GI_Amt = 0f;
+    public float GI_Bias = 0f;
     public Color GI_Tint = Color.white;
     //public float Ref_GI_Amt = 0f;
     //public Color Ref_GI_Tint = Color.white;
@@ -64,6 +65,16 @@ public class FFvControl : MonoBehaviour {
         }
     }
 
+    void SetMaterialProperties() {
+        Color giTotal = GI_Tint * GI_Amt;
+        for (int i = 0; i < Materials.Count; i++) {
+            Materials[i].SetVector("_RoomAmb", giTotal);
+            Materials[i].SetFloat("_AmbBias", GI_Bias);
+        }
+
+
+    }
+
     void UpdateDependants() {
         CollectChildren(this.gameObject.transform, ref GoChildren);
         CollectMaterials(GoChildren, ref Materials, "Firefly/Firefly_Adv");
@@ -79,5 +90,6 @@ public class FFvControl : MonoBehaviour {
             UpdateDependants();
             ForceUpdate = false;
         }
+        SetMaterialProperties();
 	}
 }

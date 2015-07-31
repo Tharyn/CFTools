@@ -9,9 +9,9 @@ Shader "Firefly/Firefly_Adv" {
 		_BumpMap	("BumpMap", 2D) = "bump" {}
 
 		_AoLtMt		("AoLtMt (AO,Light,Metal)", 2D) = "white" {}
-		_RoomAmb	("Ambient", Color) = (1,1,1)
-		_RefAmb		("Ambient (Reflections)", Color) =  (0.0,0.0,0.0,1)
-		_AmbBias	("Ambient Bias", Float) = 0
+		_RoomAmb	("GI", Color) = (1,1,1)
+		_RefAmb		("GI (Reflections)", Color) =  (0.0,0.0,0.0,1)
+		_AmbBias	("GI Bias", Float) = 0
 
 		_EmisMap	("EmisMap", 2D) = "black" {}
 		_EmisColor	("Emission", Color) = (1,1,1)
@@ -366,18 +366,11 @@ Shader "Firefly/Firefly_Adv" {
 				#else 
 					float3 directDiffuse = lightAccumulation.rgb ;
 
-					// SAME AS BELOW BUT PRE LERPED TO ELIMINATE A SKYSHOP READ
-					directDiffuse += marmoDiffuse(lerp(i.normalDir,normalDirection,1-_SubSurface)).rgb;
-					directDiffuse *= _RoomAmb;
-					directDiffuse *= 1.1; // Diffuse Ambient Light
+					float3 marGI = marmoDiffuse(lerp(i.normalDir,normalDirection,1-_SubSurface)).rgb;
+					float3 marLinear = lerp( marGI,sqrt(marGI) , (_AmbBias*.5));
 
-				// DEPRECIATED
-					// HAVEING THE SUBSURFACE PARAMETER REQUIRES 2 READS FROM SKYSHOP
-					// PERTERBED VERSION AKES THE LIGHTING TOO HARSH 
-					//directDiffuse += marmoDiffuse(normalDirection).rgb * _RoomAmb * (1-_SubSurface) * 1.1; // Diffuse Ambient Light
+					directDiffuse += marLinear;
 
-					// FOR IBL USEING THE NORMAL NOT THE  PERTURBERD GIVE SOFTER LIGHTING
-					//directDiffuse += marmoDiffuse(i.normalDir).rgb * _RoomAmb * _SubSurface * 1.1;
                 #endif
 
 				directDiffuse *= _AoLtMt_var.r;
