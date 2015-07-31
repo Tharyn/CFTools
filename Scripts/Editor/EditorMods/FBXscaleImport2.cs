@@ -398,6 +398,9 @@ public class FBXscaleImport2 : AssetPostprocessor
                                     Shader temp = EditorGUIUtility.LoadRequired("SceneView/SceneViewAura.shader") as Shader;
                                     goc.renderer.sharedMaterial.shader = temp;
 
+                                    if (goc.GetComponent<FFvControl>() == null)
+                                        goc.AddComponent<FFvControl>();
+
                                 }
                                     break;
                             }
