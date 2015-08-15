@@ -311,76 +311,54 @@ Shader "Firefly/Firefly_Adv" {
 
 
 			/////// SPECULAR:
-                float Pi = 3.141592654;
-                float InvPi = 0.31830988618;
-
-				// Full Fresnel 
-				//float3 specularColor = (_SpecMap_var.rgb+(1.0-max(0,dot(normalDirection, viewDirection))));
-
                 float specularMonochrome = dot(_SpecMap_var.rgb, float3(0.3,0.59,0.11));
-
-
-				// I THINK THIS IS PHONG ?????
-				//The alpha must be increased for the mirrors to produce a more heated reflection
-                float specPow = max( 2, _SpecMap_var.a * 128 ) ;
-                float normTerm = (specPow + 8.0 ) / (8.0 * Pi);
-                //float3 directSpecular = (lightAccumulation.rgb * 2) * lightAccumulation.a * normTerm;
-				float3 directSpecular =  lightAccumulation.a * normTerm;
-
-
-				// THIS IS IMPORTANT
-				// is controles the light ratio
-				directSpecular *= .1;
-
-				// Where we control the reflection by the light intensity
-				//float3 L1pow = _L1Color * (dot(L1Direction, viewReflectDirection) * _L1Intensity);
-				//float3 L2pow = _L2Color * (dot(L2Direction, viewReflectDirection) * _L2Intensity);
 
 				float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
 
-				// Front = Spec, side = spec *2 but no greater than 1.
-				indirectSpecular *= min(_SpecMap_var + (_SpecMap_var * (1-fresnel)),1) ;
+				// Additive
+                float3 specular = (lightAccumulation.a + (indirectSpecular * _RefAmb))  ;
+				specular *= min(_SpecMap_var + (_SpecMap_var * (1-fresnel)),1) ;
 
 				// LIGHTMAPPING IS ON
 				#ifndef LIGHTMAP_OFF 
-					indirectSpecular *= (1 / lightmapAccumulation.rgb) * lightmapAccumulation.rgb ;
-				#endif
-
-				indirectSpecular *=  _AoLtMt_var.r * _RoomAmb ;
-
-				// Additive
-                float3 specular = (directSpecular + indirectSpecular)  ;
-			
-
+					specular *= lightmapAccumulation.rgb;
+				#endif		
+					
+				specular *=  _AoLtMt_var.r;
 
 			/////// DIFFUSE:
 				// ON
                 #ifndef LIGHTMAP_OFF 
 					float3 directDiffuse = float3(0,0,0);
-					lightAccumulation.rgb + lightmapAccumulation.rgb;
 
 					// BASED IN SINGLE AMBIENT VALUE
-					float3 lmLinear = lerp( lightmapAccumulation.rgb,sqrt(lightmapAccumulation.rgb) , _AmbBias);
-					directDiffuse += lightAccumulation.rgb * lmLinear ;	// Multi lighting by the lightmap
-					directDiffuse += lmLinear * _RoomAmb;		// Add light map the ambient amount and mult by local AOmap
+					float3 lmLinear = lerp( lightmapAccumulation.rgb, sqrt(lightmapAccumulation.rgb) , _AmbBias);
+
+					// Multi lighting by the lightmap
+					directDiffuse += lightAccumulation.rgb * lmLinear ;	
+
+					// Add light map the ambient amount and mult by local AOmap
+					directDiffuse += lmLinear * _RoomAmb;		
 				#else 
 					float3 directDiffuse = lightAccumulation.rgb ;
 
+					/// Lerps normals by the Subsurface amount
 					float3 marGI = marmoDiffuse(lerp(i.normalDir,normalDirection,1-_SubSurface)).rgb;
-					float3 marLinear = lerp( marGI,sqrt(marGI) , (_AmbBias*.5));
+					float3 marLinear = lerp( marGI, sqrt(marGI) , (_AmbBias*.5));
 
 					directDiffuse += marLinear;
-
                 #endif
 
+				// Darken  Diffuse by AO
 				directDiffuse *= _AoLtMt_var.r;
 
 				float3 diffuse =  directDiffuse * _MainTex_var.rgb;
 
-				diffuse +=  (_EmisMap_var*_EmisColor*_EmisAmt)*( (fresnel*.5) + .25);
+				// EMISSION
+				diffuse +=  (_EmisMap_var * _EmisColor * _EmisAmt) * ( (fresnel*.5) + .25 );
 
 				// This is the function that determins how much diffuse based on reflection
-                diffuse *= 1-specularMonochrome;
+                diffuse *= 1 - specularMonochrome;
 
 			/////// Final Color:
                 float3 finalColor = diffuse + specular;

@@ -33,14 +33,14 @@ public class FBXscaleImport2 : AssetPostprocessor
             importer.globalScale = 0.0833333f;
         }
 
-        /* Set static object parameters
+        /* Set static object parameters */
         if (assetPath.Contains("(Sets)"))
         {
             ModelImporter importer = assetImporter as ModelImporter;
             importer.generateSecondaryUV = true;
             importer.secondaryUVPackMargin = 8;
         } 
-         */
+         
 
     }
 
@@ -291,6 +291,9 @@ public class FBXscaleImport2 : AssetPostprocessor
                                             DLP = goc.AddComponent<CF_DualLightProps>();
                                         } else if (type.IndexOf("VRay") > -1) {
                                             Lcp.type = LightType.Area;
+                                            //goc.transform.rotation +=  new Vector3(0, 180, 0);
+                                            goc.transform.RotateAround(goc.transform.position, goc.transform.up, 180);
+                                   
                                         }
 
 

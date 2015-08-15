@@ -13,6 +13,9 @@ public class FFvControl : MonoBehaviour {
     public float GI_Amt = 0f;
     public float GI_Bias = 0f;
     public Color GI_Tint = Color.white;
+    public float GI_RefAmt = 0f;
+
+
     //public float Ref_GI_Amt = 0f;
     //public Color Ref_GI_Tint = Color.white;
     //public bool reflectionRendering = false;
@@ -37,12 +40,12 @@ public class FFvControl : MonoBehaviour {
 
     // RECURSIVLY GET ALL CHILDREN uses ref and palaces children in supplied list
     public static void CollectChildren(Transform GoTran, ref List<GameObject> GoChildren) {
-        GoChildren = new List<GameObject>();
+        
         if (GoTran.childCount > 0)
-            for (int i = 0; i < GoTran.childCount; i++)           // FOR THE NUMBER OF CHILDREN(Transforms)
+            for (int i = 0; i < GoTran.childCount; i++)                 // FOR THE NUMBER OF CHILDREN(Transforms)
             {
-                GoChildren.Add(GoTran.GetChild(i).gameObject);  // ADD THE GAME OBJECT THE TRANSFORM IS ATTACHED TO
-                if (GoTran.GetChild(i).childCount != 0)           // IF THE CHILD HAS CHILDREN RECURSE     
+                GoChildren.Add(GoTran.GetChild(i).gameObject);          // ADD THE GAME OBJECT THE TRANSFORM IS ATTACHED TO
+                if (GoTran.GetChild(i).childCount != 0)                 // IF THE CHILD HAS CHILDREN RECURSE     
                     CollectChildren(GoTran.GetChild(i), ref GoChildren);
             }
     }
@@ -55,9 +58,9 @@ public class FFvControl : MonoBehaviour {
             MeshRenderer thisRend = gos[i].GetComponent<MeshRenderer>();
             if (thisRend != null) {
                 for (int j = 0; j < thisRend.sharedMaterials.Length; j++) {
-                    Debug.Log(thisRend);
+                    //Debug.Log(thisRend);
                     string name = thisRend.sharedMaterials[j].shader.name;
-                    Debug.Log(name);
+                    //Debug.Log(name);
                     if (name == sName)
                         Materials.Add(thisRend.sharedMaterials[j]);
                 }
@@ -65,20 +68,27 @@ public class FFvControl : MonoBehaviour {
         }
     }
 
+    // If the scene is dynamic then the RefAmb is tied to the GI_Amt
     void SetMaterialProperties() {
-        Color giTotal = GI_Tint * GI_Amt;
         for (int i = 0; i < Materials.Count; i++) {
-            Materials[i].SetVector("_RoomAmb", giTotal);
-            Materials[i].SetFloat("_AmbBias", GI_Bias);
+            if (dynamic) {
+                Materials[i].SetVector("_RoomAmb", (GI_Tint * GI_Amt));
+                Materials[i].SetFloat("_AmbBias", GI_Bias);
+                Materials[i].SetVector("_RefAmb", (GI_Tint * GI_Amt));
+            } else {
+                Materials[i].SetVector("_RoomAmb", (GI_Tint * GI_Amt));
+                Materials[i].SetFloat("_AmbBias", GI_Bias);
+                Materials[i].SetVector("_RefAmb", (GI_Tint * GI_RefAmt));
+            }
         }
-
-
     }
 
     void UpdateDependants() {
+        GoChildren = new List<GameObject>();
         CollectChildren(this.gameObject.transform, ref GoChildren);
         CollectMaterials(GoChildren, ref Materials, "Firefly/Firefly_Adv");
     }
+
     // Use this for initialization
     void Start() {
         UpdateDependants();

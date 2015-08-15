@@ -224,7 +224,7 @@ half4 CalculateLight (v2f i)
 	// This prevents complete loss of highlight
 	float fixRough = max((1-nspec.a), .08);
 
-	float alpha = (fixRough)*(fixRough);
+	float alpha = fixRough*fixRough;
 	float dotLH = saturate(dot(lightDir,h));
 	half diff = max (0, dotNL);	
 
