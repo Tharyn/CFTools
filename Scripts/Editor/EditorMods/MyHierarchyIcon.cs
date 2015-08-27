@@ -24,25 +24,28 @@ class MyHierarchyIcon
         //icons.Add("SpotLight.ico.png");
         // Init
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/SpotLight.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 0
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Mesh.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 1
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Sky.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 2
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Camera.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 3
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Null.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 4
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Audio.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 5
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Collider.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 6
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/OmniLight.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 7
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/SkySystem.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 8
         texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Target.ico.png", typeof(Texture2D)) as Texture2D;
-        icons.Add(texture);
+        icons.Add(texture); // 9
+        texture = AssetDatabase.LoadAssetAtPath("Assets/CFTools/GUIicons/Volume.ico.png", typeof(Texture2D)) as Texture2D;
+        icons.Add(texture); // 10
+
         EditorApplication.update += UpdateCB;
         //EditorApplication.hierarchyWindowChanged += UpdateCB;
         EditorApplication.hierarchyWindowItemOnGUI += HierarchyItemCB;

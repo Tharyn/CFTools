@@ -316,12 +316,13 @@ Shader "Firefly/Firefly_Adv" {
 				float3 indirectSpecular =  marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb;
 
 				// Additive
-                float3 specular = (lightAccumulation.a + (indirectSpecular * _RefAmb))  ;
+                float3 specular = ((lightAccumulation.a*.5f) + (indirectSpecular * _RefAmb))  ;
 				specular *= min(_SpecMap_var + (_SpecMap_var * (1-fresnel)),1) ;
 
 				// LIGHTMAPPING IS ON
 				#ifndef LIGHTMAP_OFF 
 					specular *= lightmapAccumulation.rgb;
+					//specular *= lightmapAccumulation.rgb;
 				#endif		
 					
 				specular *=  _AoLtMt_var.r;
@@ -352,7 +353,7 @@ Shader "Firefly/Firefly_Adv" {
 				// Darken  Diffuse by AO
 				directDiffuse *= _AoLtMt_var.r;
 
-				float3 diffuse =  directDiffuse * _MainTex_var.rgb;
+				float3 diffuse =  directDiffuse * sqrt(_MainTex_var.rgb);
 
 				// EMISSION
 				diffuse +=  (_EmisMap_var * _EmisColor * _EmisAmt) * ( (fresnel*.5) + .25 );

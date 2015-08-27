@@ -20,8 +20,13 @@ public class FBXscaleImport2 : AssetPostprocessor
     public static List<string> texNames;
     public char[] delimiterChars = { '(', ')', ','};
 
-    void OnPreprocessModel()
-    {
+    void OnPreprocessModel() {
+        CFTools.ClearConsole();
+        Debug.Log(assetPath);
+        Debug.Log("Import Started");
+    }
+
+    void OnPreprocessModel_bak() {
         if (assetPath.Contains(".max."))
         {
             ModelImporter importer = assetImporter as ModelImporter;
@@ -119,7 +124,7 @@ public class FBXscaleImport2 : AssetPostprocessor
             if (GoChildren[j].name.IndexOf(name) > -1 && GoChildren[j].name.IndexOf("Target") > -1)
                 to = GoChildren[j];
         }
-        //Debug.Log(to);
+
         return to;
     }
     // Does file exist
@@ -136,6 +141,7 @@ public class FBXscaleImport2 : AssetPostprocessor
     // FBXscaleImport2 importer 2.0
     void OnPostprocessModel(GameObject go) {
 
+
         if (assetPath.Contains("(Sets)") || assetPath.Contains("(Demo)")) {
 
 
@@ -149,17 +155,15 @@ public class FBXscaleImport2 : AssetPostprocessor
             string dataPath = (GetFilePath(assetPath) + "Data");
 
 
+
             // For i in Children read data files
             for (int i = 0; i < GoChildren.Count; i++) {
                 
                 GameObject goc = GoChildren[i];
-                goc.isStatic = true;
+                
 
                 string[] dirs = Directory.GetFiles(dataPath, (goc.name + "*"));
 
-                if (dirs.Length > 0) {
-                    Debug.Log("fuck");
-                }
 
              
                 /// NEXT
@@ -204,6 +208,27 @@ public class FBXscaleImport2 : AssetPostprocessor
                     CF_DualLightProps DLP = null;
                     Camera cam = null;
 
+                    // Place on layer
+                    if (go.name.Contains("_100")) {
+                        goc.layer = LayerMask.NameToLayer("100");
+                    }
+                    if (go.name.Contains("_200")) {
+                        goc.layer = LayerMask.NameToLayer("200");
+                    }
+                    if (go.name.Contains("_202")) {
+                        goc.layer = LayerMask.NameToLayer("202");
+                    }
+                    if (go.name.Contains("_204")) {
+                        goc.layer = LayerMask.NameToLayer("204");
+                    }
+                    if (go.name.Contains("_206")) {
+                        goc.layer = LayerMask.NameToLayer("206");
+                    }
+
+                    // For Casters
+                    if (goc.name.Contains(".Caster")) {
+                        goc.layer = LayerMask.NameToLayer("Invisible");
+                    }
 
                     if (goc.renderer != null) {
                         Material[] mats = goc.renderer.sharedMaterials;
@@ -212,30 +237,32 @@ public class FBXscaleImport2 : AssetPostprocessor
                             Material mat = mats[m];
                             string[] strSpl = new string[] { "." };
                             string matName = mat.name.Split(strSpl, StringSplitOptions.RemoveEmptyEntries)[0];
-                            Debug.Log(matName);
 
                             // SHADER ASSIGNMENT
-                            if (mat.name.Contains("DL_LM_SS")) {
-
-                                mat.shader = Shader.Find("DeepLight/Specular/DL_LM_SS");
-
-                            } else if (mat.name.Contains("Firefly_PBR")) {
-
+                            if (mat.name.Contains("Collider")) {
+                                mat.shader = Shader.Find("Firefly/Firefly_Collider");
+                            } else if (mat.name.Contains("Volume")) {
+                                mat.shader = Shader.Find("Firefly/Firefly_Wireframe");
+                                mat.SetVector("_LineColor", new Color(0, 0, 1, 1));
+                                mat.SetVector("_GridColor", new Color(0, 0, 1, 0));
+                                mat.SetFloat("_LineWidth", .002f);
+                               
+                            } else if (mat.name.Contains("Blocker")) {
+                                mat.shader = Shader.Find("Firefly/Firefly_Blocker");
+                            } else if (mat.name.Contains("PBR_Opaque")) {
                                 mat.shader = Shader.Find("Firefly/Firefly_Adv");
-
-                            } else {
-
+                            } else if (mat.name.Contains("PBR_Opacity")) {
+                                mat.shader = Shader.Find("Firefly/Firefly_Tran");
+                            } else  {
                                 mat.shader = Shader.Find("Diffuse");
-
                             }
 
-                            Debug.Log(mat.shader);
+
                             string[] tempArray = AssetDatabase.FindAssets(matName + " t:texture2D");
 
                             for (int t = 0; t < tempArray.Length; t++) {
                                 string assetPathStr = AssetDatabase.GUIDToAssetPath(tempArray[t]);
                                 Texture2D tempTex = Resources.LoadAssetAtPath(assetPathStr, typeof(Texture2D)) as Texture2D;
-
 
                                 if (assetPathStr.Contains("Albedo")) {
 
@@ -258,7 +285,7 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 }
 
                                 if (assetPathStr.Contains("Emis")) {
-                                    mat.SetTexture("_Emis", tempTex);
+                                    mat.SetTexture("_EmisMap", tempTex);
                                 }
                             }
                         }
@@ -291,9 +318,7 @@ public class FBXscaleImport2 : AssetPostprocessor
                                             DLP = goc.AddComponent<CF_DualLightProps>();
                                         } else if (type.IndexOf("VRay") > -1) {
                                             Lcp.type = LightType.Area;
-                                            //goc.transform.rotation +=  new Vector3(0, 180, 0);
                                             goc.transform.RotateAround(goc.transform.position, goc.transform.up, 180);
-                                   
                                         }
 
 
@@ -360,6 +385,7 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 }
 
                             case "Collider": {
+                                    goc.isStatic = true;
                                     switch (Values[TypeIndex]) {
                                         case "Box": {
                                                 goc.AddComponent<BoxCollider>();
@@ -376,9 +402,14 @@ public class FBXscaleImport2 : AssetPostprocessor
                                                 col.radius = Convert.ToSingle(Values[radiusIndex]);
                                                 break;
                                             }
+                                        case "Mesh": {
+                                                goc.AddComponent<MeshCollider>();          
+                                                break;
+                                            }
                                     }
                                     break;
                                 }
+
 
                             case "Camera": {
                                     cam = goc.AddComponent<Camera>();
@@ -407,7 +438,22 @@ public class FBXscaleImport2 : AssetPostprocessor
                                 }
                                     break;
                             }
+                            case "Sky": {
+                                goc.isStatic = false;
+                                goc.layer = LayerMask.NameToLayer("Invisible");
+                                if (goc.GetComponent("Sky") == null) {
+                                    goc.AddComponent("Sky");
+                                }
+                                if (goc.GetComponent<FFvControl>() == null)
+                                    goc.AddComponent<FFvControl>();
+                                break;
 
+
+                            }
+                            case "Mesh": {
+                                    goc.isStatic = true;
+                                    break;
+                                }
                             case "Null": {
                                     break;
                                 }
@@ -442,6 +488,17 @@ public class FBXscaleImport2 : AssetPostprocessor
             }
 
         }
+
+
+        /* Set static object parameters */
+        if (assetPath.Contains("(Sets)")) {
+            ModelImporter importer = assetImporter as ModelImporter;
+            importer.globalScale = 0.0833333f;
+            importer.generateSecondaryUV = true;
+            importer.secondaryUVPackMargin = 8;
+        }
+
+        Debug.Log("Import Complete");
     }
 
 

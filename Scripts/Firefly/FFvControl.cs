@@ -8,12 +8,11 @@ public class FFvControl : MonoBehaviour {
 
     
     public bool ForceUpdate = false;
-    public Sky sky;
     
-    public float GI_Amt = 0f;
+    public float GI_Amt = 1f;
     public float GI_Bias = 0f;
     public Color GI_Tint = Color.white;
-    public float GI_RefAmt = 0f;
+    public float GI_RefAmt = 1f;
 
 
     //public float Ref_GI_Amt = 0f;
@@ -62,7 +61,8 @@ public class FFvControl : MonoBehaviour {
                     string name = thisRend.sharedMaterials[j].shader.name;
                     //Debug.Log(name);
                     if (name == sName)
-                        Materials.Add(thisRend.sharedMaterials[j]);
+                        if (!Materials.Contains(thisRend.sharedMaterials[j]))
+                            Materials.Add(thisRend.sharedMaterials[j]);
                 }
             }
         }
@@ -83,11 +83,25 @@ public class FFvControl : MonoBehaviour {
         }
     }
 
+    // Finds materials by heiarchy
     void UpdateDependants() {
         GoChildren = new List<GameObject>();
         CollectChildren(this.gameObject.transform, ref GoChildren);
         CollectMaterials(GoChildren, ref Materials, "Firefly/Firefly_Adv");
     }
+
+    // Find materials by Axis and Bounding box
+    void UpdateByAxis() {
+        Renderer[] renderers = FindObjectsOfType(typeof(Renderer)) as Renderer[];
+        List<GameObject> GOs = new List<GameObject>();
+        for (int i = 0; i < renderers.Length; i++) {
+            if (this.gameObject.renderer.bounds.Contains(renderers[i].gameObject.transform.position)) {
+                GOs.Add(renderers[i].gameObject);
+            }
+        }
+        CollectMaterials(GOs, ref Materials, "Firefly/Firefly_Adv");
+    }
+
 
     // Use this for initialization
     void Start() {

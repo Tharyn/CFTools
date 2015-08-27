@@ -9,7 +9,7 @@ public class CF_Properties : MonoBehaviour
 
     public bool gizmo = true;
 
-    public float size = .2f;
+    public float size = 1f;
     public Color color = new Color(.75f, .75f, .75f, .5F);
 
     Color whiteLine = new Color(.5F, .5F, .5F, .5F);
