@@ -239,7 +239,8 @@ Shader "Firefly/Firefly_Tran" {
                     float3 directSpecular = 1 * pow(max(0,dot(halfDirection,normalDirection)),specPow)*normTerm;
                 #endif
                 float3 indirectSpecular = (0 + marmoMipSpecular(viewReflectDirection, i.posWorld.rgb, _SpecMap_var.a).rgb) * specularAO;
-                float3 specular = (directSpecular + indirectSpecular) * specularColor;
+                float3 specular = (directSpecular) * specularColor;
+				/*
                 #ifndef LIGHTMAP_OFF
                     #ifndef DIRLIGHTMAP_OFF
                         specular *= lightmap;
@@ -249,6 +250,9 @@ Shader "Firefly/Firefly_Tran" {
                 #else
                     specular *= (floor(attenuation) * _LightColor0.xyz);
                 #endif
+				*/
+				 specular *= (floor(attenuation) * _LightColor0.xyz);
+				 specular  += indirectSpecular*.2f;
 /////// Diffuse:
                 NdotL = max(0.0,dot( normalDirection, lightDirection ));
                 #ifndef LIGHTMAP_OFF
@@ -271,8 +275,9 @@ Shader "Firefly/Firefly_Tran" {
                 float3 diffuse = directDiffuse * _MainTex_var.rgb;
                 diffuse *= 1-specularMonochrome;
 /// Final Color:
-                float3 finalColor = diffuse + specular;
+                float3 finalColor = diffuse + specular*2;
                 return fixed4(finalColor,_MainTex_var.a);
+				//return fixed4(specular,1);
             }
             ENDCG
         }

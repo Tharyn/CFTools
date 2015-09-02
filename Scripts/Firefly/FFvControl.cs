@@ -84,7 +84,7 @@ public class FFvControl : MonoBehaviour {
     }
 
     // Finds materials by heiarchy
-    void UpdateDependants() {
+    public void UpdateDependants() {
         GoChildren = new List<GameObject>();
         CollectChildren(this.gameObject.transform, ref GoChildren);
         CollectMaterials(GoChildren, ref Materials, "Firefly/Firefly_Adv");

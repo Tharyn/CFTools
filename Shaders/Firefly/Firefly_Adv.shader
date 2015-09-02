@@ -58,7 +58,6 @@ Shader "Firefly/Firefly_Adv" {
 		//#include "PrePassBase.cginc"
 			uniform sampler2D _SpecMap; uniform float4 _SpecMap_ST;
 			uniform sampler2D _BumpMap; uniform float4 _BumpMap_ST;
-			uniform sampler2D _AoLtMt; uniform float4 _AoLtMt_ST;
 
             struct VertexInput {
                 float4 vertex : POSITION;
@@ -250,7 +249,7 @@ Shader "Firefly/Firefly_Adv" {
                 float3	normalLocal = _BumpMap_var.rgb;
                 float3	normalDirection = normalize( mul( normalLocal, tangentTransform ) ); // Perturbed normals
                 float3	viewReflectDirection = reflect( -viewDirection, normalDirection );
-				float	fresnel = dot(normalDirection,viewDirection);
+				float	fresnel = dot(normalDirection, viewDirection);
 
 			//////???????
                 #ifndef LIGHTMAP_OFF // LIGHTMAPPING IS ON

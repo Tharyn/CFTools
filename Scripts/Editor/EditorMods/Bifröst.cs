@@ -27,7 +27,6 @@ public class Bifröst : EditorWindow {
 
     // Copys from the light to the Realtime Property storage
     void UpdateRtProps() {
-        Debug.Log("Updating RT lights");
         CF_DualLightProps[] DualLightProps = FindObjectsOfType(typeof(CF_DualLightProps)) as CF_DualLightProps[];
 
         for (int i = 0; i < DualLightProps.Length; i++) {
@@ -59,8 +58,9 @@ public class Bifröst : EditorWindow {
 
             switch (type) {
                 case 0: { // REAL TIME
-                    Debug.Log("Setting Realtime Lights");
+            
                     lightmapProp.intValue = 0;
+                 
                     serialObj.ApplyModifiedProperties();
                     aLight.enabled =  DLP.rtOn;
                     aLight.range = DLP.rtRange;
@@ -83,7 +83,7 @@ public class Bifröst : EditorWindow {
                 }
                 case 2: { // REFLECTIOPN PROBE
 
-                    Debug.Log("Setting Reflection Lights");
+                  
                     lightmapProp.intValue = 0;
                     serialObj.ApplyModifiedProperties();
                     aLight.enabled = DLP.reOn;

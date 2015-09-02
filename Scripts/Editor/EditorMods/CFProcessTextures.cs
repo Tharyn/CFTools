@@ -24,21 +24,20 @@ public class CFProcessTextures : AssetPostprocessor {
             TextureImporter textureImporter  = (TextureImporter) assetImporter;
 		    textureImporter.linearTexture = true;
             textureImporter.mipmapEnabled = false;
+            
 		    textureImporter.textureType = TextureImporterType.Advanced;
             textureImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
             textureImporter.isReadable = true;
         }
 
+        TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+        importer.maxTextureSize = 4096;
         if (assetPath.Contains("Norm"))
         {
-            // THESE TWO LINES WHERE HANGING UNITY AND UNNECESSARY
-            //AssetDatabase.Refresh();
-            //AssetDatabase.ImportAsset(assetPath);
-            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
             importer.textureType = TextureImporterType.Bump;
-            AssetDatabase.WriteImportSettingsIfDirty(assetPath);
-
         }
+        AssetDatabase.WriteImportSettingsIfDirty(assetPath);
+
     }
 }
     

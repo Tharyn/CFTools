@@ -56,8 +56,8 @@
         float hy = step(i.texcoord1.y, 1.0 - _LineWidth);
  
         answer = lerp(_LineColor, _GridColor, lx*ly*hx*hy);
- 
-        return answer;
+		
+        return (0,0,0,0);
       }
       ENDCG
      }

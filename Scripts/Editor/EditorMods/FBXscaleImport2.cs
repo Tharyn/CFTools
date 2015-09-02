@@ -4,9 +4,27 @@ using System.Collections;
 using System.Collections.Generic; // NEEDED FOR (Lists)
 using System;
 using System.IO;
+using mset;
+using UnityEngine.Events;
+
 
 public class FBXscaleImport2 : AssetPostprocessor
 {
+    // RUN AFTER ALL ASSET PROCESSING
+    static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
+        foreach (var str in importedAssets) {
+            Debug.Log("Reimported Asset: " + str);
+        }
+        foreach (var str in deletedAssets) {
+            Debug.Log("Deleted Asset: " + str);
+        }
+
+        for (var i = 0; i < movedAssets.Length; i++) {
+            Debug.Log("Moved Asset: " + movedAssets[i] + " from: " + movedFromAssetPaths[i]);
+        }
+        FFvMatUpdate.UpdateMaterials();
+    }
+
 
     /* How to search in a list for a value
     int index = Values.FindIndex(s => s.Contains("Light"));
@@ -14,7 +32,6 @@ public class FBXscaleImport2 : AssetPostprocessor
         Debug.Log(GoChildren[i].name);
     */
     //public static bool enabled = false;
-
 
     public static List<string> texIDs;
     public static List<string> texNames;
@@ -127,6 +144,7 @@ public class FBXscaleImport2 : AssetPostprocessor
 
         return to;
     }
+
     // Does file exist
     bool DoesAssetExits(string[] Paths, string fileName) {
 
@@ -137,6 +155,31 @@ public class FBXscaleImport2 : AssetPostprocessor
         else
             return false;
     }
+
+    Sky FindParentSky(GameObject goc) {
+
+        Sky aSky = null;
+        GameObject gop = goc.transform.parent.gameObject;
+
+        aSky = gop.GetComponent<Sky>();
+        if (aSky != null)
+            return aSky;
+        else {
+            //Debug.Log(gop);
+            //Debug.Log(gop.transform.parent);
+            if (gop.transform.parent != null) 
+                aSky = FindParentSky(gop);
+            else
+                return null;
+        }
+
+        Debug.Log(aSky);
+        return aSky;
+    }
+
+
+
+    
 
     // FBXscaleImport2 importer 2.0
     void OnPostprocessModel(GameObject go) {
@@ -452,6 +495,14 @@ public class FBXscaleImport2 : AssetPostprocessor
                             }
                             case "Mesh": {
                                     goc.isStatic = true;
+                                    Sky aSky = FindParentSky(goc);
+                                    if (aSky != null) {
+                                        if (goc.GetComponent<SkyAnchor>() == null)
+                                            goc.AddComponent<SkyAnchor>();
+                                        SkyAnchor theSky = goc.GetComponent<SkyAnchor>();
+                                        theSky.BindType = SkyAnchor.AnchorBindType.TargetSky;
+                                        theSky.AnchorSky = aSky;
+                                    }
                                     break;
                                 }
                             case "Null": {

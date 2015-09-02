@@ -271,8 +271,21 @@ public class CFTools : MonoBehaviour
                         SceneView.lastActiveSceneView.FrameSelected();
                         Event.current.Use();
                     break;
-
-
+                    case KeyCode.F4:
+                        //SceneView.currentDrawingSceneView.antiAlias;
+                        SceneView.currentDrawingSceneView.m_OverlayMode = 0;
+                        SceneView.currentDrawingSceneView.m_RenderMode = DrawCameraMode.Wireframe ;
+                    break;
+                    case KeyCode.F5:
+                  
+                        SceneView.currentDrawingSceneView.m_OverlayMode = 0;
+                        SceneView.currentDrawingSceneView.m_RenderMode = DrawCameraMode.Textured;
+                    break;
+                    case KeyCode.F6:
+                    
+                        SceneView.currentDrawingSceneView.m_OverlayMode = 0;
+                        SceneView.currentDrawingSceneView.m_RenderMode = DrawCameraMode.TexturedWire ;
+                    break;
                         
                 }
 
